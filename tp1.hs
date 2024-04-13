@@ -137,15 +137,19 @@ es_una_gema o = isPrefixOf "Gema de" (nombre_objeto o)
 
 -}
 
-foldPersonaje :: (Posición -> String -> b) -> (b -> Dirección -> b) -> (b -> b) -> Personaje -> b
-foldPersonaje f_p _ _  (Personaje pi n) = f_p pi n
-foldPersonaje f_p f_mv f_mr (Mueve p d) = f_mv (foldPersonaje f_p f_mv f_mr p) d
-foldPersonaje f_p f_mv f_mr (Muere p)   = f_mr (foldPersonaje f_p f_mv f_mr p)
+foldPersonaje :: (Posición -> String -> a) -> (a -> Dirección -> a) -> (a -> a) -> Personaje -> a
+foldPersonaje casoInicial casoMovio casoMuere persona = case persona of
+    Personaje pos name -> casoInicial pos name
+    Mueve personaAntes dir -> casoMovio (rec personaAntes) dir
+    Muere personaAntes -> casoMuere (rec personaAntes)
+    where rec = foldPersonaje casoInicial casoMovio casoMuere 
 
-foldObjeto :: (Posición -> String -> b) -> (b -> Personaje -> b) -> (b -> b) -> Objeto -> b
-foldObjeto f_o _ _ (Objeto pi n)       = f_o pi n
-foldObjeto f_o f_t f_d (Tomado o p)    = f_t (foldObjeto f_o f_t f_d o) p
-foldObjeto f_o f_t f_d (EsDestruido o) = f_d (foldObjeto f_o f_t f_d o)
+foldObjeto :: (Posición -> String -> a) -> (a -> Personaje -> a) -> (a -> a) -> Objeto -> a
+foldObjeto casoInicial casoTomado casoDestruido objeto = case objeto of
+    Objeto pos name -> casoInicial pos name
+    Tomado objetoAntes persona -> casoTomado (rec objetoAntes) persona
+    EsDestruido objetoAntes -> casoDestruido (rec objetoAntes)
+    where rec = foldObjeto casoInicial casoTomado casoDestruido 
 
 {-Ejercicio 2-}
 
@@ -156,7 +160,7 @@ foldObjeto f_o f_t f_d (EsDestruido o) = f_d (foldObjeto f_o f_t f_d o)
 -}
 
 posición_personaje :: Personaje -> Posición
-posición_personaje = foldPersonaje const (\r d -> siguiente_posición r d) id
+posición_personaje = foldPersonaje const siguiente_posición id
 
 nombre_objeto :: Objeto -> String
 nombre_objeto = foldObjeto (const id) const id
@@ -170,10 +174,10 @@ nombre_objeto = foldObjeto (const id) const id
 -}
 
 objetos_en :: Universo -> [Objeto]
-objetos_en u = map objeto_de (filter es_un_objeto u)
+objetos_en universo = rights universo
 
 personajes_en :: Universo -> [Personaje]
-personajes_en u = map personaje_de (filter es_un_personaje u)
+personajes_en universo = lefts universo
 
 {-Ejercicio 4-}
 

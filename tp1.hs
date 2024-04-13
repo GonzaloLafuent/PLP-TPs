@@ -125,11 +125,11 @@ es_una_gema o = isPrefixOf "Gema de" (nombre_objeto o)
   => posición_personaje (Personaje pi n) = foldPersonaje const _ _ (Personaje pi n) =
     = const pi n = (const pi) n = pi.
   
-  => posición_personaje (Mueve p d) = foldPersonaje const const id (Mueve p d)
-    = const rec d = (const rec) d = d.
+  => posición_personaje (Mueve p d) = foldPersonaje const (\r d -> siguiente_posición r d) id (Mueve p d)
+    = (\r d -> siguiente_posición r d) rec d = siguiente_posición rec d.
       where rec = foldPersonaje f_p f_mv f_mr p -- Recursión sobre p.
     
-  => posición_personae (Muere p) = foldPersonaje const const id (Muere p d) =
+  => posición_personaje (Muere p) = foldPersonaje const (\r d -> siguiente_posición r d) id (Muere p d) =
     = id rec = rec.
       where rec = foldPersonaje f_p f_mv f_mr p -- Recurisión sobre p.
 
@@ -156,7 +156,7 @@ foldObjeto f_o f_t f_d (EsDestruido o) = f_d (foldObjeto f_o f_t f_d o)
 -}
 
 posición_personaje :: Personaje -> Posición
-posición_personaje = foldPersonaje const const id
+posición_personaje = foldPersonaje const (\r d -> siguiente_posición r d) id
 
 nombre_objeto :: Objeto -> String
 nombre_objeto = foldObjeto (const id) const id

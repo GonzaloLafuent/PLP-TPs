@@ -1,5 +1,4 @@
 import Test.HUnit
-
 {-- Tipos --}
 
 import Data.Either
@@ -106,88 +105,43 @@ es_una_gema o = isPrefixOf "Gema de" (nombre_objeto o)
 
 {-Ejercicio 1-}
 
-{-
+foldPersonaje :: (Posición -> String -> a) -> (a ->  Dirección-> a ) -> (a -> a) -> Personaje -> a
+foldPersonaje cPersonaje cMueve cMuere p = case p of
+                                              Personaje pos nom -> cPersonaje pos nom
+                                              Mueve per dir -> cMueve (r per) dir
+                                              Muere per -> cMuere (r per)
+                                            where r = foldPersonaje cPersonaje cMueve cMuere 
 
-  En ambos tipos voy a recibir una función por cada constructor.
-
-  En el caso de los constructores bases, son funciones van de los
-  parámetros a un valor de tipo b.
-
-  En el caso de los constructores recursivos, son funciones que
-  toman el resultado de la recursión sobre y sus parámetros, y
-  devuelven un valor de tipo b.
-
-  Explico foldPersonaje usando posición_personaje
-
-  posición_personaje :: Personaje -> Posición
-  posición_personaje = foldPersonaje const const id
-  
-  => posición_personaje (Personaje pi n) = foldPersonaje const _ _ (Personaje pi n) =
-    = const pi n = (const pi) n = pi.
-  
-  => posición_personaje (Mueve p d) = foldPersonaje const (\r d -> siguiente_posición r d) id (Mueve p d)
-    = (\r d -> siguiente_posición r d) rec d = siguiente_posición rec d.
-      where rec = foldPersonaje f_p f_mv f_mr p -- Recursión sobre p.
-    
-  => posición_personaje (Muere p) = foldPersonaje const (\r d -> siguiente_posición r d) id (Muere p d) =
-    = id rec = rec.
-      where rec = foldPersonaje f_p f_mv f_mr p -- Recurisión sobre p.
-
-  Símil con foldObjeto.
-
--}
-
-foldPersonaje :: (Posición -> String -> b) -> (b -> Dirección -> b) -> (b -> b) -> Personaje -> b
-foldPersonaje f_p _ _  (Personaje pi n) = f_p pi n
-foldPersonaje f_p f_mv f_mr (Mueve p d) = f_mv (foldPersonaje f_p f_mv f_mr p) d
-foldPersonaje f_p f_mv f_mr (Muere p)   = f_mr (foldPersonaje f_p f_mv f_mr p)
-
-foldObjeto :: (Posición -> String -> b) -> (b -> Personaje -> b) -> (b -> b) -> Objeto -> b
-foldObjeto f_o _ _ (Objeto pi n)       = f_o pi n
-foldObjeto f_o f_t f_d (Tomado o p)    = f_t (foldObjeto f_o f_t f_d o) p
-foldObjeto f_o f_t f_d (EsDestruido o) = f_d (foldObjeto f_o f_t f_d o)
+foldObjeto :: (Posición -> String -> a) -> (a -> Personaje -> a) -> (a -> a) -> Objeto -> a
+foldObjeto cObjeto cTomado cEsDestruido obj = case obj of
+                                                Objeto pos nom -> cObjeto pos nom
+                                                Tomado obj per -> cTomado (r obj) per
+                                                EsDestruido obj -> cEsDestruido (r obj)
+                                              where r = foldObjeto cObjeto cTomado cEsDestruido
 
 {-Ejercicio 2-}
 
-{-
-
-  Se explica con la explicación del ejercicio anterior.
-
--}
-
 posición_personaje :: Personaje -> Posición
-posición_personaje = foldPersonaje const (\r d -> siguiente_posición r d) id
+posición_personaje = foldPersonaje (\p n -> p) (\r d -> siguiente_posición r d) (\r -> r) 
 
 nombre_objeto :: Objeto -> String
-nombre_objeto = foldObjeto (const id) const id
+nombre_objeto = foldObjeto (\p n -> n) (\r p -> r) (\r -> r) 
 
 {-Ejercicio 3-}
 
-{-
-
-  Simple aplicación de map y filter.
-
--}
 
 objetos_en :: Universo -> [Objeto]
-objetos_en u = map objeto_de (filter es_un_objeto u)
+objetos_en u = map objeto_de (filter (es_un_objeto ) u)
 
 personajes_en :: Universo -> [Personaje]
-personajes_en u = map personaje_de (filter es_un_personaje u)
+personajes_en u = map personaje_de (filter (es_un_personaje) u)
 
 {-Ejercicio 4-}
 
-objetos_en_posesión_de :: String -> Universo -> [Objeto]
-objetos_en_posesión_de n u = filter (en_posesión_de n) (objetos_en u)
+objetos_en_posesión_de :: String -> Universo -> [Objeto] 
+objetos_en_posesión_de n u = map objeto_de (filter (\x -> if es_un_objeto x then if en_posesión_de n (objeto_de x) then True else False else False) u)
 
 {-Ejercicio 5-}
-
-{-
-
-  Recursión estructural sobre [Objeto]. Devuelvo elemento que minimiza
-  distancia a p.
-
--}
 
 -- Asume que hay al menos un objeto
 objeto_libre_mas_cercano :: Personaje -> Universo -> Objeto
@@ -196,21 +150,20 @@ objeto_libre_mas_cercano p u = foldr1 f (objetos_libres_en u)
     f = \o rec -> if (distancia (Left p) (Right o)) < (distancia (Left p) (Right rec)) then
         o
       else
-        rec
+        rec  
 
 {-Ejercicio 6-}
 
 tiene_thanos_todas_las_gemas :: Universo -> Bool
-tiene_thanos_todas_las_gemas u = length (filter es_una_gema (objetos_en_posesión_de "Thanos" u)) == 6
+tiene_thanos_todas_las_gemas u = length (filter (\o -> es_una_gema o) (objetos_en_posesión_de "Thanos" u)) == 6
 
 {-Ejercicio 7-}
 
 podemos_ganarle_a_thanos :: Universo -> Bool
-podemos_ganarle_a_thanos u = thanosNoTieneLasGemas && (thorPuedeVencer || wandaPuedeVencer)
+podemos_ganarle_a_thanos u = not (tiene_thanos_todas_las_gemas u) && ( thor_puede_vencer || wanda_puede_vencer)
   where
-    thanosNoTieneLasGemas = not (tiene_thanos_todas_las_gemas u)
-    thorPuedeVencer = (está_el_personaje "Thor" u) && (está_el_objeto "StormBreaker" u)
-    wandaPuedeVencer = (está_el_personaje "Wanda" u) && (está_el_personaje "Vision" u) && (en_posesión_de "Vision" (objeto_de_nombre "Gema de la Mente" u))
+    thor_puede_vencer = está_el_personaje "Thor" u && está_el_objeto "StormBreaker" u
+    wanda_puede_vencer = está_el_personaje "Wanda" u && está_el_personaje "Vision" u && en_posesión_de "Vision" (objeto_de_nombre "Gema de la Mente" u)
 
 {-Tests-}
 
@@ -235,7 +188,6 @@ wanda = Personaje (0,0) "Wanda"
 vision = Personaje (0,0) "Vision"
 ironMan = Personaje (0,0) "Iron Man"
 thanos = Personaje (0,0) "Thanos"
-
 {-Objetos-}
 mjölnir = Objeto (2,2) "Mjölnir"
 escudo = Objeto (3,4) "Escudo"
@@ -374,6 +326,7 @@ testsEj3 = test [ -- Casos de test para el ejercicio 3
   objetos_en universoGananPorWanda 
     ~=? [(Tomado gemaDeLamente vision),(Tomado gemaDeLaRealidad thanos)]  
   {-Test personajes_en-}
+
   ]
 
 testsEj4 = test [ -- Casos de test para el ejercicio 4

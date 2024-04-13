@@ -239,11 +239,11 @@ ironMan = Personaje (0,0) "Iron Man"
 thanos = Personaje (0,0) "Thanos"
 
 {-Objetos-}
-mjölnir = Objeto (2,2) "Mjölnir"
-escudo = Objeto (3,4) "Escudo"
-casco = Objeto (2,1) "Casco"
-espada = Objeto (5,6) "Espada"
-arco = Objeto (3,5) "Arco"
+mjölnir = Objeto (3,3) "Mjölnir"
+escudo = Objeto (3,3) "Escudo"
+casco = Objeto (8,9) "Casco"
+espada = Objeto (2,1) "Espada"
+arco = Objeto (7,5) "Arco"
 
 stormBreaker = Objeto (3,1) "StormBreaker"
 
@@ -270,7 +270,10 @@ universoThanosTieneTodasLasGemas = universo_con [
                                                   (Tomado gemaDeLaRealidad thanos),
                                                   (Tomado gemaDeLamente thanos),
                                                   (Tomado gemaDePoder thanos),
-                                                  (Tomado gemaDeTiempo thanos)
+                                                  (Tomado gemaDeTiempo thanos),
+                                                  escudo,
+                                                  arco,
+                                                  mjölnir
                                                 ]
 
 universoThanosNoTieneTodasLasGemas = universo_con [
@@ -284,7 +287,10 @@ universoThanosNoTieneTodasLasGemas = universo_con [
                                                   (Tomado gemaDeAlma thanos),
                                                   (Tomado gemaDeEspacio thanos),
                                                   (Tomado gemaDeLaRealidad thanos),
-                                                  (Tomado gemaDeLamente thanos)
+                                                  (Tomado gemaDeLamente thanos),
+                                                  casco,
+                                                  mjölnir,
+                                                  espada
                                                 ]
 
 universoGananPorThor = universo_con [
@@ -292,7 +298,8 @@ universoGananPorThor = universo_con [
                               thor  
                             ] 
                             [
-                              (Tomado stormBreaker thor)
+                              (Tomado stormBreaker thor),
+                              mjölnir
                             ]
 universoGananPorWanda = universo_con [
                                 vision,
@@ -301,7 +308,8 @@ universoGananPorWanda = universo_con [
                              ]
                              [
                                 (Tomado gemaDeLamente vision),
-                                (Tomado gemaDeLaRealidad thanos)
+                                (Tomado gemaDeLaRealidad thanos),
+                                mjölnir
                              ]                             
 
 testsEj1 = test [ -- Casos de test para el ejercicio 1
@@ -328,7 +336,7 @@ testsEj2 = test [ -- Casos de test para el ejercicio 2
   posición_personaje (Mueve (Mueve (Mueve thor Norte) Norte) Este)
     ~=? (1,2)
   ,
-  --Test posion al morir
+  --Test pocion al morir
   posición_personaje (Muere thor)
     ~=? (0,0)
   ,
@@ -351,16 +359,21 @@ testsEj2 = test [ -- Casos de test para el ejercicio 2
 
 testsEj3 = test [ -- Casos de test para el ejercicio 3
   {-Test objetos_en-}
+  --Caso universo sin todas las gemas
   objetos_en universoThanosNoTieneTodasLasGemas 
     ~=? [
       (Tomado escudo ironMan),
       (Tomado gemaDeAlma thanos),
       (Tomado gemaDeEspacio thanos),
       (Tomado gemaDeLaRealidad thanos),
-      (Tomado gemaDeLamente thanos)
+      (Tomado gemaDeLamente thanos),
+      casco,
+      mjölnir,
+      espada
     ]
   ,
-  objetos_en universoThanosTieneTodasLasGemas                -- Caso de test 1 - expresión a testear
+  --Caso el universo con todas las gemas
+  objetos_en universoThanosTieneTodasLasGemas                
     ~=? [
           (Tomado stormBreaker thor),
           (Tomado gemaDeAlma thanos),
@@ -368,15 +381,20 @@ testsEj3 = test [ -- Casos de test para el ejercicio 3
           (Tomado gemaDeLaRealidad thanos),
           (Tomado gemaDeLamente thanos),
           (Tomado gemaDePoder thanos),
-          (Tomado gemaDeTiempo thanos)
-        ]                               -- Caso de test 1 - resultado esperado
+          (Tomado gemaDeTiempo thanos),
+          escudo,
+          arco,
+          mjölnir
+        ]                               
   ,
+  --Caso con menos objetos
   objetos_en universoGananPorThor 
-    ~=? [(Tomado stormBreaker thor)]
+    ~=? [(Tomado stormBreaker thor),mjölnir]
   ,
   objetos_en universoGananPorWanda 
-    ~=? [(Tomado gemaDeLamente vision),(Tomado gemaDeLaRealidad thanos)] 
+    ~=? [(Tomado gemaDeLamente vision),(Tomado gemaDeLaRealidad thanos),mjölnir] 
   ,
+  --Caso universo sin objetos
   objetos_en universoVacio  
     ~=? []
   {-Test personajes_en-}
@@ -393,61 +411,81 @@ testsEj3 = test [ -- Casos de test para el ejercicio 3
   personajes_en universoGananPorWanda
     ~=? [vision,wanda,thanos]
   ,
+  --Caso el universo sin personajes
   personajes_en universoVacio
     ~=? []
   ]
 
 testsEj4 = test [ -- Casos de test para el ejercicio 4
-  objetos_en_posesión_de "Thanos" universoThanosTieneTodasLasGemas            -- Caso de test 1 - expresión a testear
+  --Caso thanos posee todas las gemas
+  objetos_en_posesión_de "Thanos" universoThanosTieneTodasLasGemas            
     ~=? [(Tomado gemaDeAlma thanos),
          (Tomado gemaDeEspacio thanos),
          (Tomado gemaDeLaRealidad thanos),
          (Tomado gemaDeLamente thanos),
          (Tomado gemaDePoder thanos),
-         (Tomado gemaDeTiempo thanos)]                                                     -- Caso de test 1 - resultado esperado 
+         (Tomado gemaDeTiempo thanos)]                                                      
   ,
+  --Caso Thor posee el stormBreaker
   objetos_en_posesión_de "Thor" universoGananPorThor
     ~=? [(Tomado stormBreaker thor)]
   ,
+  --Caso vision posee la gema de la mente
   objetos_en_posesión_de "Vision" universoGananPorWanda
     ~=? [(Tomado gemaDeLamente vision)]
-  ,  
+  ,
+  --Caso el personaje no posee objetos  
   objetos_en_posesión_de "IronMan" universoThanosTieneTodasLasGemas      
     ~=? []
   ,  
+  --Caso el universo esta vacio de objetos y personajes
   objetos_en_posesión_de "Thor" universoVacio
     ~=? []   
   ]
 
 testsEj5 = test [ -- Casos de test para el ejercicio 5
-  objeto_libre_mas_cercano phil [Right mjölnir]       -- Caso de test 1 - expresión a testear
-    ~=? mjölnir                                       -- Caso de test 1 - resultado esperado
+  --Caso objeto mas cercano desde la pocision inicial
+  objeto_libre_mas_cercano ironMan universoThanosTieneTodasLasGemas
+    ~=? mjölnir
+  ,
+  --Caso objeto mas cercano desplazando al personaje
+  objeto_libre_mas_cercano (Mueve(Mueve ironMan Norte)Este) universoThanosNoTieneTodasLasGemas
+    ~=? espada
+
   ]
 
 testsEj6 = test [ -- Casos de test para el ejercicio 6
-  tiene_thanos_todas_las_gemas universoThanosNoTieneTodasLasGemas       -- Caso de test 1 - expresión a testear
-    ~=? False                                                            -- Caso de test 1 - resultado esperado
+  --Caso Thanos posee las 6 gemas
+  tiene_thanos_todas_las_gemas universoThanosNoTieneTodasLasGemas       
+    ~=? False                                                           
   ,
+  --Caso Thanos no posee ninguna gema
   tiene_thanos_todas_las_gemas universoThanosTieneTodasLasGemas
     ~=? True
   ,
+  --Caso No hay ningun personaje ni objeto
   tiene_thanos_todas_las_gemas universoVacio
     ~=? False
   ,
+  --Caso Thanos posee alguna gema
   tiene_thanos_todas_las_gemas universoGananPorThor
     ~=? False    
   ]
 
 testsEj7 = test [ -- Casos de test para el ejercicio 7
-  podemos_ganarle_a_thanos universoThanosTieneTodasLasGemas         -- Caso de test 1 - expresión a testear
-    ~=? False                                          -- Caso de test 1 - resultado esperado
+  --Caso Thanos posee todas las gemas
+  podemos_ganarle_a_thanos universoThanosTieneTodasLasGemas        
+    ~=? False                                          
   ,
+  --Caso Thanos no posee todas las gemas y thor posee el stormBreaker
   podemos_ganarle_a_thanos universoGananPorThor
     ~=? True
   ,
+  --Caso Thanos no posee todas las gemas y esta wanda y vision posee la gema de la mente
   podemos_ganarle_a_thanos universoGananPorWanda
     ~=? True
   ,
+  --Caso si el universo es vacio
   podemos_ganarle_a_thanos universoVacio
     ~=? False      
   ]

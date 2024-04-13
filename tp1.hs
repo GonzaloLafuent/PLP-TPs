@@ -105,9 +105,7 @@ es_una_gema :: Objeto -> Bool
 es_una_gema o = isPrefixOf "Gema de" (nombre_objeto o)
 
 {-Ejercicio 1-}
-
 {-
-
   En ambos tipos voy a recibir una función por cada constructor.
 
   En el caso de los constructores bases, son funciones van de los
@@ -137,14 +135,14 @@ es_una_gema o = isPrefixOf "Gema de" (nombre_objeto o)
 
 -}
 
-foldPersonaje :: (Posición -> String -> a) -> (a -> Dirección -> a) -> (a -> a) -> Personaje -> a
+foldPersonaje :: (Posición -> String -> b) -> (b -> Dirección -> b) -> (b -> b) -> Personaje -> b
 foldPersonaje casoInicial casoMovio casoMuere persona = case persona of
     Personaje pos name -> casoInicial pos name
     Mueve personaAntes dir -> casoMovio (rec personaAntes) dir
     Muere personaAntes -> casoMuere (rec personaAntes)
     where rec = foldPersonaje casoInicial casoMovio casoMuere 
 
-foldObjeto :: (Posición -> String -> a) -> (a -> Personaje -> a) -> (a -> a) -> Objeto -> a
+foldObjeto :: (Posición -> String -> b) -> (b -> Personaje -> b) -> (b -> b) -> Objeto -> b
 foldObjeto casoInicial casoTomado casoDestruido objeto = case objeto of
     Objeto pos name -> casoInicial pos name
     Tomado objetoAntes persona -> casoTomado (rec objetoAntes) persona
@@ -169,7 +167,7 @@ nombre_objeto = foldObjeto (const id) const id
 
 {-
 
-  Simple aplicación de map y filter.
+  rights devuelve toda aplicacion de right a una lista de datos either. lefts funciona de forma analoga
 
 -}
 
@@ -258,6 +256,7 @@ gemaDeTiempo = Objeto (4,4) "Gema de tiempo"
 gemaDeAlma = Objeto (3,3) "Gema de Alma"
 
 {-Universos-}
+universoVacio = universo_con [] []
 universoThanosTieneTodasLasGemas = universo_con [
                                                   thanos,
                                                   wanda,
@@ -376,8 +375,26 @@ testsEj3 = test [ -- Casos de test para el ejercicio 3
     ~=? [(Tomado stormBreaker thor)]
   ,
   objetos_en universoGananPorWanda 
-    ~=? [(Tomado gemaDeLamente vision),(Tomado gemaDeLaRealidad thanos)]  
+    ~=? [(Tomado gemaDeLamente vision),(Tomado gemaDeLaRealidad thanos)] 
+  ,
+  objetos_en universoVacio  
+    ~=? []
   {-Test personajes_en-}
+  ,
+  personajes_en universoThanosTieneTodasLasGemas
+    ~=? [thanos,wanda,vision,ironMan]
+  ,
+  personajes_en universoThanosNoTieneTodasLasGemas
+    ~=? [thanos,wanda,vision,ironMan]
+  ,
+  personajes_en universoGananPorThor
+    ~=? [thanos,thor]  
+  ,
+  personajes_en universoGananPorWanda
+    ~=? [vision,wanda,thanos]
+  ,
+  personajes_en universoVacio
+    ~=? []
   ]
 
 testsEj4 = test [ -- Casos de test para el ejercicio 4
@@ -387,7 +404,19 @@ testsEj4 = test [ -- Casos de test para el ejercicio 4
          (Tomado gemaDeLaRealidad thanos),
          (Tomado gemaDeLamente thanos),
          (Tomado gemaDePoder thanos),
-         (Tomado gemaDeTiempo thanos)]                                                     -- Caso de test 1 - resultado esperado
+         (Tomado gemaDeTiempo thanos)]                                                     -- Caso de test 1 - resultado esperado 
+  ,
+  objetos_en_posesión_de "Thor" universoGananPorThor
+    ~=? [(Tomado stormBreaker thor)]
+  ,
+  objetos_en_posesión_de "Vision" universoGananPorWanda
+    ~=? [(Tomado gemaDeLamente vision)]
+  ,  
+  objetos_en_posesión_de "IronMan" universoThanosTieneTodasLasGemas      
+    ~=? []
+  ,  
+  objetos_en_posesión_de "Thor" universoVacio
+    ~=? []   
   ]
 
 testsEj5 = test [ -- Casos de test para el ejercicio 5
@@ -397,10 +426,28 @@ testsEj5 = test [ -- Casos de test para el ejercicio 5
 
 testsEj6 = test [ -- Casos de test para el ejercicio 6
   tiene_thanos_todas_las_gemas universoThanosNoTieneTodasLasGemas       -- Caso de test 1 - expresión a testear
-    ~=? False                                            -- Caso de test 1 - resultado esperado
+    ~=? False                                                            -- Caso de test 1 - resultado esperado
+  ,
+  tiene_thanos_todas_las_gemas universoThanosTieneTodasLasGemas
+    ~=? True
+  ,
+  tiene_thanos_todas_las_gemas universoVacio
+    ~=? False
+  ,
+  tiene_thanos_todas_las_gemas universoGananPorThor
+    ~=? False    
   ]
 
 testsEj7 = test [ -- Casos de test para el ejercicio 7
   podemos_ganarle_a_thanos universoThanosTieneTodasLasGemas         -- Caso de test 1 - expresión a testear
     ~=? False                                          -- Caso de test 1 - resultado esperado
+  ,
+  podemos_ganarle_a_thanos universoGananPorThor
+    ~=? True
+  ,
+  podemos_ganarle_a_thanos universoGananPorWanda
+    ~=? True
+  ,
+  podemos_ganarle_a_thanos universoVacio
+    ~=? False      
   ]

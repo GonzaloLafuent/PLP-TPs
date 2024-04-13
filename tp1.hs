@@ -227,31 +227,162 @@ allTests = test [ -- Reemplazar los tests de prueba por tests propios
   "ejercicio7" ~: testsEj7
   ]
 
+{-Personajes-}
 phil = Personaje (0,0) "Phil"
+thor = Personaje (0,0) "Thor"
+capitanAmerica = Personaje (0,0) "Capitan America"
+wanda = Personaje (0,0) "Wanda"
+vision = Personaje (0,0) "Vision"
+ironMan = Personaje (0,0) "Iron Man"
+thanos = Personaje (0,0) "Thanos"
+{-Objetos-}
 mjölnir = Objeto (2,2) "Mjölnir"
-universo_sin_thanos = universo_con [phil] [mjölnir]
+escudo = Objeto (3,4) "Escudo"
+casco = Objeto (2,1) "Casco"
+espada = Objeto (5,6) "Espada"
+arco = Objeto (3,5) "Arco"
+
+stormBreaker = Objeto (3,1) "StormBreaker"
+
+{-Gemas-}
+gemaDeLamente = Objeto (5,4) "Gema de la Mente"
+gemaDeLaRealidad  = Objeto (4,2) "Gema de la Realidad"
+gemaDeEspacio = Objeto (5,1) "Gema de Espacio"
+gemaDePoder = Objeto (2,2) "Gema de Poder"
+gemaDeTiempo = Objeto (4,4) "Gema de tiempo"
+gemaDeAlma = Objeto (3,3) "Gema de Alma"
+
+{-Universos-}
+universoThanosTieneTodasLasGemas = universo_con [
+                                                  thanos,
+                                                  wanda,
+                                                  vision,
+                                                  ironMan
+                                                  ] 
+                                                [
+                                                  (Tomado stormBreaker thor),
+                                                  (Tomado gemaDeAlma thanos),
+                                                  (Tomado gemaDeEspacio thanos),
+                                                  (Tomado gemaDeLaRealidad thanos),
+                                                  (Tomado gemaDeLamente thanos),
+                                                  (Tomado gemaDePoder thanos),
+                                                  (Tomado gemaDeTiempo thanos)
+                                                ]
+
+universoThanosNoTieneTodasLasGemas = universo_con [
+                                                  thanos,
+                                                  wanda,
+                                                  vision,
+                                                  ironMan
+                                                  ] 
+                                                [
+                                                  (Tomado escudo ironMan),
+                                                  (Tomado gemaDeAlma thanos),
+                                                  (Tomado gemaDeEspacio thanos),
+                                                  (Tomado gemaDeLaRealidad thanos),
+                                                  (Tomado gemaDeLamente thanos)
+                                                ]
+
+universoGananPorThor = universo_con [
+                              thanos,
+                              thor  
+                            ] 
+                            [
+                              (Tomado stormBreaker thor)
+                            ]
+universoGananPorWanda = universo_con [
+                                vision,
+                                wanda,
+                                thanos
+                             ]
+                             [
+                                (Tomado gemaDeLamente vision),
+                                (Tomado gemaDeLaRealidad thanos)
+                             ]                             
 
 testsEj1 = test [ -- Casos de test para el ejercicio 1
   foldPersonaje (\p s -> 0) (\r d -> r+1) (\r -> r+1) phil             -- Caso de test 1 - expresión a testear
     ~=? 0                                                               -- Caso de test 1 - resultado esperado
   ,
   foldPersonaje (\p s -> 0) (\r d -> r+1) (\r -> r+1) (Muere phil)     -- Caso de test 2 - expresión a testear
-    ~=? 1                                                               -- Caso de test 2 - resultado esperado
+    ~=? 1                                                              -- Caso de test 2 - resultado esperado
+  
   ]
 
 testsEj2 = test [ -- Casos de test para el ejercicio 2
-  posición_personaje phil       -- Caso de test 1 - expresión a testear
-    ~=? (0,0)                   -- Caso de test 1 - resultado esperado
+  --Test Posicion inicial
+  posición_personaje thor       
+    ~=? (0,0)                     
+  ,
+  --Test el orden de los movimientos no afecta la posicion final
+  posición_personaje (Mueve (Mueve (Mueve thor Norte) Este) Norte)
+    ~=? (1,2)
+  ,
+  posición_personaje (Mueve (Mueve (Mueve thor Este) Norte) Norte)
+    ~=? (1,2)
+  ,
+  posición_personaje (Mueve (Mueve (Mueve thor Norte) Norte) Este)
+    ~=? (1,2)
+  ,
+  --Test posion al morir
+  posición_personaje (Muere thor)
+    ~=? (0,0)
+  ,
+  posición_personaje (Mueve (Mueve (Muere thor) Este) Este) 
+    ~=? (2,0)
+  , 
+  --Test movimientos a seguidos a una misma direccion    
+  posición_personaje (Mueve (Mueve (Mueve thor Norte) Norte) Norte)
+    ~=? (0,3)
+  ,   
+  posición_personaje (Mueve (Mueve (Mueve thor Sur) Sur) Sur)
+    ~=? (0,-3)
+   ,   
+  posición_personaje (Mueve (Mueve thor Oeste) Oeste) 
+    ~=? (-2,0)
+  ,  
+  posición_personaje (Mueve (Mueve thor Este) Este) 
+    ~=? (2,0)         
   ]
 
 testsEj3 = test [ -- Casos de test para el ejercicio 3
-  objetos_en []       -- Caso de test 1 - expresión a testear
-    ~=? []            -- Caso de test 1 - resultado esperado
+  {-Test objetos_en-}
+  objetos_en universoThanosNoTieneTodasLasGemas 
+    ~=? [
+      (Tomado escudo ironMan),
+      (Tomado gemaDeAlma thanos),
+      (Tomado gemaDeEspacio thanos),
+      (Tomado gemaDeLaRealidad thanos),
+      (Tomado gemaDeLamente thanos)
+    ]
+  ,
+  objetos_en universoThanosTieneTodasLasGemas                -- Caso de test 1 - expresión a testear
+    ~=? [
+          (Tomado stormBreaker thor),
+          (Tomado gemaDeAlma thanos),
+          (Tomado gemaDeEspacio thanos),
+          (Tomado gemaDeLaRealidad thanos),
+          (Tomado gemaDeLamente thanos),
+          (Tomado gemaDePoder thanos),
+          (Tomado gemaDeTiempo thanos)
+        ]                               -- Caso de test 1 - resultado esperado
+  ,
+  objetos_en universoGananPorThor 
+    ~=? [(Tomado stormBreaker thor)]
+  ,
+  objetos_en universoGananPorWanda 
+    ~=? [(Tomado gemaDeLamente vision),(Tomado gemaDeLaRealidad thanos)]  
+  {-Test personajes_en-}
   ]
 
 testsEj4 = test [ -- Casos de test para el ejercicio 4
-  objetos_en_posesión_de "Phil" []       -- Caso de test 1 - expresión a testear
-    ~=? []                             -- Caso de test 1 - resultado esperado
+  objetos_en_posesión_de "Thanos" universoThanosTieneTodasLasGemas            -- Caso de test 1 - expresión a testear
+    ~=? [(Tomado gemaDeAlma thanos),
+         (Tomado gemaDeEspacio thanos),
+         (Tomado gemaDeLaRealidad thanos),
+         (Tomado gemaDeLamente thanos),
+         (Tomado gemaDePoder thanos),
+         (Tomado gemaDeTiempo thanos)]                                                     -- Caso de test 1 - resultado esperado
   ]
 
 testsEj5 = test [ -- Casos de test para el ejercicio 5
@@ -260,11 +391,11 @@ testsEj5 = test [ -- Casos de test para el ejercicio 5
   ]
 
 testsEj6 = test [ -- Casos de test para el ejercicio 6
-  tiene_thanos_todas_las_gemas universo_sin_thanos       -- Caso de test 1 - expresión a testear
+  tiene_thanos_todas_las_gemas universoThanosNoTieneTodasLasGemas       -- Caso de test 1 - expresión a testear
     ~=? False                                            -- Caso de test 1 - resultado esperado
   ]
 
 testsEj7 = test [ -- Casos de test para el ejercicio 7
-  podemos_ganarle_a_thanos universo_sin_thanos         -- Caso de test 1 - expresión a testear
+  podemos_ganarle_a_thanos universoThanosTieneTodasLasGemas         -- Caso de test 1 - expresión a testear
     ~=? False                                          -- Caso de test 1 - resultado esperado
   ]

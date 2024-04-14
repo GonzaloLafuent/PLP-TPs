@@ -123,10 +123,10 @@ foldObjeto casoInicial casoTomado casoDestruido objeto = case objeto of
 {-Ejercicio 2-}
 
 posición_personaje :: Personaje -> Posición
-posición_personaje = foldPersonaje (\pos -> const pos) siguiente_posición id
+posición_personaje = foldPersonaje (\pos _ -> pos) siguiente_posición id
 
 nombre_objeto :: Objeto -> String
-nombre_objeto = foldObjeto (\_ -> id) (\res -> const res) id
+nombre_objeto = foldObjeto (\_ name -> name) (\res _ -> res) id
 
 {-Ejercicio 3-}
 

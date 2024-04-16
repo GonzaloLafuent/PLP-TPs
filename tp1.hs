@@ -180,7 +180,7 @@ personajes_en universo = lefts universo
 {-Ejercicio 4-}
 
 objetos_en_posesión_de :: String -> Universo -> [Objeto]
-objetos_en_posesión_de n u = filter (en_posesión_de n) (objetos_en u)
+objetos_en_posesión_de n u = if not(null u) &&  está_vivo (personaje_de_nombre n u) then filter (en_posesión_de n) (objetos_en u) else []
 
 {-Ejercicio 5-}
 
@@ -259,6 +259,25 @@ gemaDeAlma = Objeto (3,3) "Gema de Alma"
 universoVacio = universo_con [] []
 universoThanosTieneTodasLasGemas = universo_con [
                                                   thanos,
+                                                  wanda,
+                                                  vision,
+                                                  ironMan
+                                                  ] 
+                                                [
+                                                  (Tomado stormBreaker thor),
+                                                  (Tomado gemaDeAlma thanos),
+                                                  (Tomado gemaDeEspacio thanos),
+                                                  (Tomado gemaDeLaRealidad thanos),
+                                                  (Tomado gemaDeLamente thanos),
+                                                  (Tomado gemaDePoder thanos),
+                                                  (Tomado gemaDeTiempo thanos),
+                                                  escudo,
+                                                  arco,
+                                                  mjölnir
+                                                ]
+
+universoThanosMuerto = universo_con [
+                                                  (Muere thanos),
                                                   wanda,
                                                   vision,
                                                   ironMan

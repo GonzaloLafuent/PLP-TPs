@@ -152,9 +152,7 @@ foldObjeto casoInicial casoTomado casoDestruido objeto = case objeto of
 {-Ejercicio 2-}
 
 {-
-
   Se explica con la explicación del ejercicio anterior.
-
 -}
 
 posición_personaje :: Personaje -> Posición
@@ -166,9 +164,8 @@ nombre_objeto = foldObjeto (const id) const id
 {-Ejercicio 3-}
 
 {-
-
-  rights devuelve toda aplicacion de right a una lista de datos either. lefts funciona de forma analoga
-
+  Dado xs::Either a b, rights devuelve la lista de ys::a, es decir aquellos valores correspodientes
+  al constructor right de Either. analogo pra lefts.
 -}
 
 objetos_en :: Universo -> [Objeto]
@@ -178,17 +175,16 @@ personajes_en :: Universo -> [Personaje]
 personajes_en universo = lefts universo
 
 {-Ejercicio 4-}
+{- verifica si el personaje esta vivo, de estarlo devuelve los objetos en posesion del mismo-}
 
 objetos_en_posesión_de :: String -> Universo -> [Objeto]
-objetos_en_posesión_de n u = if not(null u) &&  está_vivo (personaje_de_nombre n u) then filter (en_posesión_de n) (objetos_en u) else []
+objetos_en_posesión_de n u = if not(null u) &&  está_vivo (personaje_de_nombre n u) then filter (\o -> en_posesión_de n o && not(fue_destruido o)) (objetos_en u) else []
 
 {-Ejercicio 5-}
 
 {-
-
   Recursión estructural sobre [Objeto]. Devuelvo elemento que minimiza
   distancia a p.
-
 -}
 
 -- Asume que hay al menos un objeto
@@ -294,6 +290,26 @@ universoThanosMuerto = universo_con [
                                                   arco,
                                                   mjölnir
                                                 ]
+
+universoGemasDestruidas = universo_con [
+                                                  thanos,
+                                                  wanda,
+                                                  vision,
+                                                  ironMan
+                                                  ] 
+                                                [
+                                                  (Tomado stormBreaker thor),
+                                                  (Tomado (EsDestruido gemaDeAlma) thanos),
+                                                  (Tomado (EsDestruido gemaDeEspacio ) thanos),
+                                                  (Tomado (EsDestruido gemaDeLaRealidad) thanos),
+                                                  (Tomado (EsDestruido gemaDeLamente) thanos),
+                                                  (Tomado (EsDestruido gemaDePoder) thanos),
+                                                  (Tomado (EsDestruido gemaDeTiempo) thanos),
+                                                  escudo,
+                                                  arco,
+                                                  mjölnir
+                                                ]
+
 
 universoThanosNoTieneTodasLasGemas = universo_con [
                                                   thanos,
@@ -445,6 +461,14 @@ testsEj4 = test [ -- Casos de test para el ejercicio 4
          (Tomado gemaDePoder thanos),
          (Tomado gemaDeTiempo thanos)]                                                      
   ,
+  --Caso un personaje tiene objetos pero esta muerto
+  objetos_en_posesión_de "Thanos" universoThanosMuerto
+    ~=? []
+  , 
+  --Caso un personaje posse objetos destruidos
+  objetos_en_posesión_de "Thanos" universoGemasDestruidas
+    ~=? []
+  , 
   --Caso Thor posee el stormBreaker
   objetos_en_posesión_de "Thor" universoGananPorThor
     ~=? [(Tomado stormBreaker thor)]
@@ -478,6 +502,9 @@ testsEj6 = test [ -- Casos de test para el ejercicio 6
   tiene_thanos_todas_las_gemas universoThanosNoTieneTodasLasGemas       
     ~=? False                                                           
   ,
+  tiene_thanos_todas_las_gemas universoGemasDestruidas
+    ~=? False
+  ,
   --Caso Thanos no posee ninguna gema
   tiene_thanos_todas_las_gemas universoThanosTieneTodasLasGemas
     ~=? True
@@ -499,6 +526,9 @@ testsEj7 = test [ -- Casos de test para el ejercicio 7
   --Caso Thanos no posee todas las gemas y thor posee el stormBreaker
   podemos_ganarle_a_thanos universoGananPorThor
     ~=? True
+  ,
+  podemos_ganarle_a_thanos universoGemasDestruidas
+    ~=? False
   ,
   --Caso Thanos no posee todas las gemas y esta wanda y vision posee la gema de la mente
   podemos_ganarle_a_thanos universoGananPorWanda

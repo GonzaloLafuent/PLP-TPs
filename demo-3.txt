@@ -4,12 +4,18 @@ Tenemos las siguiente funciones:
     -elem a x:xs = e == x || elem xs
 
     -objetos_en :: Universo -> [Objeto]
-    -objetos_en universo = rights universo
+    -objetos_en u = map objeto_de (filter (es_un_objeto ) u)
+    
+    -filter::a -> bool -> [a] -> [a]
+    -filter _ [] = []
+    -filter p (x:xs) = if p x then x:filter p xs else filter p xs
 
-    -rights [Either a b] -> [b]
-    -rights [] = []
-    -rights (Right x):xs = x: rights xs
-    -rights (Left y):xs = rights xs
+    -map::(a -> b) -> [a] -> [b]
+    -map _  [] = []
+    -map f (x:xs) = f x : map f xs 
+
+    -objeto_de :: Either Personaje Objeto -> Objeto
+    -objeto_de (Right o) = o
 
 Queremos ver que ∀ u :: Universo . ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u
 Probemos por induccion sobre u, tal que u::[Either Objeto Personaje]
@@ -17,55 +23,63 @@ tomamos P(u): ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u
 
 CASO BASE:
 -Pruebo que vale P([]):
-    -elem o (objetos_en []) = elem o (rights [])                           -Por def de objetos_en
-                            = elem o []                                    -Por def de rights
-                            = False                                        -Por def de elem
+    -elem o (objetos_en []) = elem o (map objeto_de (filter (es_un_objeto ) []))                            -Por def de objetos_en
+                            = elem o (map objetos_de [])                                                    -Por def de filter
+                            = elem o []                                                                     -Por def de map
+                            = False                                                                         -Por def de elem
 
     -Como el primer lado de la implicacion es False, la implicacion va ser siempre True. Por lo tango vale P([]) 
 
 H.I:
 -Supongo que vale P(U): ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u
+
+PASO INDUCTIVO:
 -Quiero ver que ∀ e::Either Objeto Personaje vale P(e:u): ∀ o :: Objeto . elem o (objetos_en e:u) ⇒ elem (Right o) e:u 
 -probemos:
     -tengo que:
-        -Tomo x::Objeto
 
-        elem o (objetos_en e:u) = elem o (rights e:u)                                                       -Por def de objetos_en 
-                                = elem o (if e == right x then x:rights u else rights u)                    -Por def de rights
+        elem o (objetos_en e:u) = elem o map objeto_de (filter (es_un_objeto ) e:u)                                                                -Por def de objetos_en 
+                                = elem o map objeto_de (if es_un_objeto e then e:filter (es_un_objeto) u else filter (es_un_objeto) u)             -Por def de filter
 
     -divido en casos:
-        -si e = right x:
-            -elem o x:rights u =  o == x | elem o rights u                                                  -por def de elem
+        -si es_un_objeto e = False tenemos que:
+            -elem o map objeto_de (if es_un_objeto e then e:filter (es_un_objeto) u else filter (es_un_objeto) u) = elem o map objeto_de (filter (es_un_objeto) u)   -por la definicion anterior
 
-            -tomo q = o == x | elem o rights u. si puede pasar que q = False o q = True:
-                -Si q = False:
+            -Luego tenemos que elem o map (filter (objetos_en) e:u) = elem o map (filter (objetos_en) u) = elem o objeto_en u por defincion de objeto_en 
+            -Si elem o (objetos_en e:u) = elem o objeto_en u = False sabemos que el segundo lado de la implicacion no importa, tal que siempre sera verdadera la implicacion
+            -Si elem o (objetos_en e:u) = elem o objeto_en u = True por H.I sabemos que elem o (objetos_en u) ⇒ elem (Right o) u. como el primer lado de implicacion es verdadero
+            -para que valga dicha implicacion valga el segundo lado tambien debe serlo, por lo tanto elem (Right o) u = True.
+            -Si elem (Right o) u = True entonces o∈u, por lo tanto elem (Right o) e:u = True.
+            -Concluimos que vale elem o (objetos_en e:u) ⇒ elem (Right o) e:u
 
-                    -El primer lado de la implicacion va ser False, por lo tanto la implicacion
-                     va ser siempre verdadera, por lo tanto vale P(e:u)
 
-                -si q = True:
+        -si es_un_objeto e = True tenemos que:
+            -elem o map objeto_de (if es_un_objeto e then e:filter (es_un_objeto) u else filter (es_un_objeto) u) = elem o map (objeto_de e):(filter (es_un_objeto) u)
 
-                    -O bien o==x = True, o bien elem o (rights u) = True
-                        -Si o == x = True:
+            -luego: 
+                    -elem o map objeto_de e:(filter (es_un_objeto) u) = elem o (objeto_de e) : map objeto_de (filter (es_un_objeto) u)                -Por def de map
+                                                                      = elem o (objeto_de e) : objeto_en u                                            -Por def de objeto_en
+                                                                      = o == objeto_de e || elem o objeto_en u                                        -Por def de elem
+            -veamos los distintos casos:
+                -o == objeto_de e = True
+                    -Esto implica que elem o (objetos_en e:u) = True
+                    -Sabemos que e::Either Objeto Personaje, por la definicion de objetos_de, objeto_de e = x tal que x::Objeto, luego o == x
+                    -Como x == o luego Right o = Right x, como Right x = e, vale que elem (Right o) e:u = True 
+                    -concluimos que elem o (objetos_en e:u) ⇒ elem (Right o) e:u
 
-                            -como o == x luego e = Right x = Right o, por lo tanto elem (Right o) e:u = True
-                            como ambos lados de la implicacion son verdaderas, vale la implicacion y
-                            por lo tanto vale P(e:u)
+                -elem o objeto_en u = True
+                    -Esto implica que elem o (objetos_en e:u) = True
+                    -Por HI sabemos que elem o (objetos_en u) ⇒ elem (Right o) u
+                    -Como elem o (objetos_en e:u) = True por la aplicacion anterior de la HI entonces elem (Right o) u = True
+                    -Si elem (Right o) u = True entonces (Right o) ∈ u
+                    -Luego como (Right o) ∈ u entonces podemos decir que vale que elem (Right o) e:u = True 
+                    -concluimos que vale que elem o (objetos_en e:u) ⇒ elem (Right o) e:u 
 
-                        -Si elem o (rights u) = True:
+                -o == objeto_de e || elem o objeto_en u = False
+                    -Luego tenemos que elem o (objetos_en e:u) = False, como la primer parte de la implicacion es siempre falsa luego 
+                    -vale que elem o (objetos_en e:u) ⇒ elem (Right o) e:u        
 
-                            -sabemos que elem o (rights u) = elem o (objetos_en u) por def de objetos_en
-                            -luego por HI vale que ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u
-                            -que a su vez elem (Right o) u ⇒ elem (Right o) e:u, por lo tanto vale P(e:u)
-
-        -por ultimo nos queda si e!= Right x:
-
-            -luego tenemos que elem o (objeto_en e:u) = elem o (rights e:u) = elem o (rights u)
-            -por definicion de objetos_ en sabemos que elem o (rights u) = elem o (objetos_en u)
-            -luego por HI vale que ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u
-            -que a su vez elem (Right o) u ⇒ elem (Right o) e:u, por lo tanto vale P(e:u)
-
-Como probamos P([]) y A partir de P(U) probamos que vale P(e:u), tenemos que ∀u::Either Personaje Objetos
+Como probamos P([]) y A partir de P(U) probamos que para todos los casos posibles vale P(e:u), tenemos que ∀u::Either Personaje Objetos
 vale P(U).
 
 

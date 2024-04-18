@@ -169,10 +169,10 @@ nombre_objeto = foldObjeto (const id) const id
 -}
 
 objetos_en :: Universo -> [Objeto]
-objetos_en universo = rights universo
+objetos_en u = map objeto_de (filter (es_un_objeto ) u)
 
 personajes_en :: Universo -> [Personaje]
-personajes_en universo = lefts universo
+personajes_en u = map personaje_de (filter (es_un_personaje) u)
 
 {-Ejercicio 4-}
 {- verifica si el personaje esta vivo, de estarlo devuelve los objetos en posesion del mismo-}
@@ -207,8 +207,9 @@ podemos_ganarle_a_thanos :: Universo -> Bool
 podemos_ganarle_a_thanos u = thanosNoTieneLasGemas && (thorPuedeVencer || wandaPuedeVencer)
   where
     thanosNoTieneLasGemas = not (tiene_thanos_todas_las_gemas u)
-    thorPuedeVencer = (está_el_personaje "Thor" u) && (está_el_objeto "StormBreaker" u)
-    wandaPuedeVencer = (está_el_personaje "Wanda" u) && (está_el_personaje "Vision" u) && (en_posesión_de "Vision" (objeto_de_nombre "Gema de la Mente" u))
+    thorPuedeVencer = (está_el_personaje "Thor" u) && ( está_vivo(personaje_de_nombre "Thor" u) )&&(está_el_objeto "StormBreaker" u)
+    wandaPuedeVencer = (está_el_personaje "Wanda" u) && (está_el_personaje "Vision" u) && (está_vivo(personaje_de_nombre "Wanda" u))
+                          && (está_vivo(personaje_de_nombre "Vision" u)) && (en_posesión_de "Vision" (objeto_de_nombre "Gema de la Mente" u))
 
 {-Tests-}
 

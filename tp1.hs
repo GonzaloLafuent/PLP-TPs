@@ -164,8 +164,7 @@ nombre_objeto = foldObjeto (const id) const id
 {-Ejercicio 3-}
 
 {-
-  Dado xs::Either a b, rights devuelve la lista de ys::a, es decir aquellos valores correspodientes
-  al constructor right de Either. analogo pra lefts.
+  Filtramos aquellos elementos que sean objetos o personajes en cada caso
 -}
 
 objetos_en :: Universo -> [Objeto]
@@ -175,13 +174,14 @@ personajes_en :: Universo -> [Personaje]
 personajes_en u = map personaje_de (filter (es_un_personaje) u)
 
 {-Ejercicio 4-}
-{- verifica si el personaje esta vivo, de estarlo devuelve los objetos en posesion del mismo-}
+{-
+  Tomamos como idea que si el personaje esta muerto no puede poseer objetos y que el universo no este vacio
+-}
 
 objetos_en_posesión_de :: String -> Universo -> [Objeto]
 objetos_en_posesión_de n u = if not(null u) &&  está_vivo (personaje_de_nombre n u) then filter (\o -> en_posesión_de n o && not(fue_destruido o)) (objetos_en u) else []
 
 {-Ejercicio 5-}
-
 {-
   Recursión estructural sobre [Objeto]. Devuelvo elemento que minimiza
   distancia a p.
@@ -202,11 +202,11 @@ tiene_thanos_todas_las_gemas :: Universo -> Bool
 tiene_thanos_todas_las_gemas u = length (filter es_una_gema (objetos_en_posesión_de "Thanos" u)) == 6
 
 {-Ejercicio 7-}
-
+{- Tomamos como idea que si el personaje esta muerto no puede ganar -}
 podemos_ganarle_a_thanos :: Universo -> Bool
 podemos_ganarle_a_thanos u = thanosNoTieneLasGemas && (thorPuedeVencer || wandaPuedeVencer)
   where
-    thanosNoTieneLasGemas = not (tiene_thanos_todas_las_gemas u)
+    thanosNoTieneLasGemas = not (tiene_thanos_todas_las_gemas u) 
     thorPuedeVencer = (está_el_personaje "Thor" u) && ( está_vivo(personaje_de_nombre "Thor" u) )&&(está_el_objeto "StormBreaker" u)
     wandaPuedeVencer = (está_el_personaje "Wanda" u) && (está_el_personaje "Vision" u) && (está_vivo(personaje_de_nombre "Wanda" u))
                           && (está_vivo(personaje_de_nombre "Vision" u)) && (en_posesión_de "Vision" (objeto_de_nombre "Gema de la Mente" u))
@@ -227,7 +227,6 @@ allTests = test [ -- Reemplazar los tests de prueba por tests propios
   ]
 
 {-Personajes-}
-phil = Personaje (0,0) "Phil"
 thor = Personaje (0,0) "Thor"
 capitanAmerica = Personaje (0,0) "Capitan America"
 wanda = Personaje (0,0) "Wanda"
@@ -241,7 +240,6 @@ escudo = Objeto (3,3) "Escudo"
 casco = Objeto (8,9) "Casco"
 espada = Objeto (2,1) "Espada"
 arco = Objeto (7,5) "Arco"
-
 stormBreaker = Objeto (3,1) "StormBreaker"
 
 {-Gemas-}
@@ -296,7 +294,8 @@ universoGemasDestruidas = universo_con [
                                                   thanos,
                                                   wanda,
                                                   vision,
-                                                  ironMan
+                                                  ironMan,
+                                                  thor
                                                   ] 
                                                 [
                                                   (Tomado stormBreaker thor),
@@ -337,6 +336,7 @@ universoGananPorThor = universo_con [
                               (Tomado stormBreaker thor),
                               mjölnir
                             ]
+
 universoGananPorWanda = universo_con [
                                 vision,
                                 wanda,
@@ -348,13 +348,31 @@ universoGananPorWanda = universo_con [
                                 mjölnir
                              ]                             
 
+universoThorMuerto = universo_con [
+                              thanos,
+                              Muere(thor)  
+                            ] 
+                            [
+                              (Tomado stormBreaker thor),
+                              mjölnir
+                            ]
+
 testsEj1 = test [ -- Casos de test para el ejercicio 1
-  foldPersonaje (\p s -> 0) (\r d -> r+1) (\r -> r+1) phil             -- Caso de test 1 - expresión a testear
-    ~=? 0                                                               -- Caso de test 1 - resultado esperado
+  --Chequemos que recorra todos los estados posibles
+  foldPersonaje (\p s -> 0) (\r d -> r+1) (\r -> r+1) (Mueve((Mueve(thor)Sur))Norte)             
+    ~=? 2                                                               
   ,
-  foldPersonaje (\p s -> 0) (\r d -> r+1) (\r -> r+1) (Muere phil)     -- Caso de test 2 - expresión a testear
-    ~=? 1                                                              -- Caso de test 2 - resultado esperado
-  
+  foldPersonaje (\p s -> 0) (\r d -> r+1) (\r -> r+1) (Muere thor)     
+    ~=? 1
+  ,                                                                
+  foldObjeto (\p s -> 0) (\r d -> r+1) (\r -> r+1) espada
+    ~=? 0
+  ,                                                                
+  foldObjeto (\p s -> 0) (\r d -> r+1) (\r -> r+1) (EsDestruido(espada))
+    ~=? 1
+  ,                                                                
+  foldObjeto (\p s -> 0) (\r d -> r+1) (\r -> r+1) (Tomado(EsDestruido(espada))thor)
+    ~=? 2    
   ]
 
 testsEj2 = test [ -- Casos de test para el ejercicio 2
@@ -372,7 +390,7 @@ testsEj2 = test [ -- Casos de test para el ejercicio 2
   posición_personaje (Mueve (Mueve (Mueve thor Norte) Norte) Este)
     ~=? (1,2)
   ,
-  --Test pocion al morir
+  --Test posicion al morir
   posición_personaje (Muere thor)
     ~=? (0,0)
   ,
@@ -529,11 +547,14 @@ testsEj7 = test [ -- Casos de test para el ejercicio 7
     ~=? True
   ,
   podemos_ganarle_a_thanos universoGemasDestruidas
-    ~=? False
+    ~=? True
   ,
   --Caso Thanos no posee todas las gemas y esta wanda y vision posee la gema de la mente
   podemos_ganarle_a_thanos universoGananPorWanda
     ~=? True
+  ,
+  podemos_ganarle_a_thanos universoThorMuerto
+    ~=? False
   ,
   --Caso si el universo es vacio
   podemos_ganarle_a_thanos universoVacio

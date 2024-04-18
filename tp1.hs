@@ -168,18 +168,17 @@ nombre_objeto = foldObjeto (const id) const id
 -}
 
 objetos_en :: Universo -> [Objeto]
-objetos_en u = map objeto_de (filter (es_un_objeto ) u)
+objetos_en u = map objeto_de (filter (es_un_objeto) u)
 
 personajes_en :: Universo -> [Personaje]
 personajes_en u = map personaje_de (filter (es_un_personaje) u)
 
 {-Ejercicio 4-}
-{-
-  Tomamos como idea que si el personaje esta muerto no puede poseer objetos y que el universo no este vacio
--}
 
+-- No importa si el personaje está muerto o si el objeto fue destruído.
+-- Si le pertenece, le pertenece.
 objetos_en_posesión_de :: String -> Universo -> [Objeto]
-objetos_en_posesión_de n u = if not(null u) &&  está_vivo (personaje_de_nombre n u) then filter (\o -> en_posesión_de n o && not(fue_destruido o)) (objetos_en u) else []
+objetos_en_posesión_de n u = filter (en_posesión_de n) (objetos_en u)
 
 {-Ejercicio 5-}
 {-
@@ -290,7 +289,7 @@ universoThanosMuerto = universo_con [
                                                   mjölnir
                                                 ]
 
-universoGemasDestruidas = universo_con [
+universoGemasDestruidasPoseidasPorThanos = universo_con [
                                                   thanos,
                                                   wanda,
                                                   vision,
@@ -473,20 +472,36 @@ testsEj3 = test [ -- Casos de test para el ejercicio 3
 testsEj4 = test [ -- Casos de test para el ejercicio 4
   --Caso thanos posee todas las gemas
   objetos_en_posesión_de "Thanos" universoThanosTieneTodasLasGemas            
-    ~=? [(Tomado gemaDeAlma thanos),
-         (Tomado gemaDeEspacio thanos),
-         (Tomado gemaDeLaRealidad thanos),
-         (Tomado gemaDeLamente thanos),
-         (Tomado gemaDePoder thanos),
-         (Tomado gemaDeTiempo thanos)]                                                      
+    ~=? [
+      (Tomado gemaDeAlma thanos),
+      (Tomado gemaDeEspacio thanos),
+      (Tomado gemaDeLaRealidad thanos),
+      (Tomado gemaDeLamente thanos),
+      (Tomado gemaDePoder thanos),
+      (Tomado gemaDeTiempo thanos)
+    ]
   ,
-  --Caso un personaje tiene objetos pero esta muerto
+  -- Caso un personaje tiene objetos y esta muerto
   objetos_en_posesión_de "Thanos" universoThanosMuerto
-    ~=? []
+    ~=? [
+      (Tomado gemaDeAlma thanos),
+      (Tomado gemaDeEspacio thanos),
+      (Tomado gemaDeLaRealidad thanos),
+      (Tomado gemaDeLamente thanos),
+      (Tomado gemaDePoder thanos),
+      (Tomado gemaDeTiempo thanos)
+    ]
   , 
   --Caso un personaje posse objetos destruidos
-  objetos_en_posesión_de "Thanos" universoGemasDestruidas
-    ~=? []
+  objetos_en_posesión_de "Thanos" universoGemasDestruidasPoseidasPorThanos
+    ~=? [
+      (Tomado (EsDestruido gemaDeAlma) thanos),
+      (Tomado (EsDestruido gemaDeEspacio ) thanos),
+      (Tomado (EsDestruido gemaDeLaRealidad) thanos),
+      (Tomado (EsDestruido gemaDeLamente) thanos),
+      (Tomado (EsDestruido gemaDePoder) thanos),
+      (Tomado (EsDestruido gemaDeTiempo) thanos)
+    ]
   , 
   --Caso Thor posee el stormBreaker
   objetos_en_posesión_de "Thor" universoGananPorThor
@@ -506,7 +521,7 @@ testsEj4 = test [ -- Casos de test para el ejercicio 4
   ]
 
 testsEj5 = test [ -- Casos de test para el ejercicio 5
-  --Caso objeto mas cercano desde la pocision inicial
+  -- Caso objeto mas cercano desde la pocision inicial
   objeto_libre_mas_cercano ironMan universoThanosTieneTodasLasGemas
     ~=? mjölnir
   ,
@@ -517,14 +532,14 @@ testsEj5 = test [ -- Casos de test para el ejercicio 5
   ]
 
 testsEj6 = test [ -- Casos de test para el ejercicio 6
-  --Caso Thanos posee las 6 gemas
+  --Caso Thanos no tiene todas las gemas.
   tiene_thanos_todas_las_gemas universoThanosNoTieneTodasLasGemas       
-    ~=? False                                                           
-  ,
-  tiene_thanos_todas_las_gemas universoGemasDestruidas
     ~=? False
   ,
-  --Caso Thanos no posee ninguna gema
+  tiene_thanos_todas_las_gemas universoGemasDestruidasPoseidasPorThanos
+    ~=? True
+  ,
+  --Caso Thanos tiene todas las gemas.
   tiene_thanos_todas_las_gemas universoThanosTieneTodasLasGemas
     ~=? True
   ,
@@ -546,8 +561,8 @@ testsEj7 = test [ -- Casos de test para el ejercicio 7
   podemos_ganarle_a_thanos universoGananPorThor
     ~=? True
   ,
-  podemos_ganarle_a_thanos universoGemasDestruidas
-    ~=? True
+  podemos_ganarle_a_thanos universoGemasDestruidasPoseidasPorThanos
+    ~=? False
   ,
   --Caso Thanos no posee todas las gemas y esta wanda y vision posee la gema de la mente
   podemos_ganarle_a_thanos universoGananPorWanda

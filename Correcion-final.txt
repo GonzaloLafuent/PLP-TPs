@@ -73,8 +73,10 @@ Cambio 1		    -tomemos el segundo lado de la implicacion. tengo que:
                     -elem o (map objeto_de e:(filter (es_un_objeto) u)) = elem o objeto_de e : (map objeto_de (filter (es_un_objeto) u))                   -Por def de map
                                                                       	= elem o objeto_de e : objetos_en u                                                -Por def de objetos_en
                                                                       	= o == objeto_de e || elem o (objetos_en u)                                        -Por def de elem
+
 	    -Por lo tanto en este caso elem o (objetos_en e:u) = o == objeto_de e || elem o (objetos_en u).
             -Por induccion sobre booleanos debemos ver los casos cuando o == objeto_de e || elem o (objetos_en u) = False o cuando o == objeto_de e || elem o (objetos_en u) = True.
+            
 	        -Para o == objeto_de e || elem o (objetos_en u) = True tenemos los siguientes casos:
                 -o == objeto_de e = True:
 		            -Queremos ver que elem o (objetos_en e:u) ⇒ elem (Right o) e:u. Como en este caso el primer lado de la implicacion es True, el segundo debe serlo 
@@ -98,9 +100,9 @@ Cambio 2 4          -Como e::Either Personaje Objeto, luego por extensionalidad 
                 -elem o (objeto_en u) = True:
                     -Queremos ver que elem o (objetos_en e:u) ⇒ elem (Right o) e:u. Como en este caso el primer lado de la implicacion es True, el segundo debe serlo 
 		             para que valga la implicacion.
-Cammbio 3           -Tomemos el segundo lado de la implicacion. por def de elem tenemos que:
+Cammbio 3           -Tomemos el segundo lado de la implicacion. tenemos que:
 
-			                elem (Right o) e:u = (Right o) == e || elem (Right o) u
+			                elem (Right o) e:u = (Right o) == e || elem (Right o) u   -por def de elem 
 
 		            -Como estamos en el caso en el que elem o (Objeto en u) = True , por HI sabemos que elem o (objetos_en u) ⇒ elem (Right o) u. Como el primer lado 
 		             de la implicacion es True, luego el segundo Debe serlo para hacer valer la HI, por lo tanto elem (Right o) u = True.	 	

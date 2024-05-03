@@ -233,6 +233,8 @@ vision = Personaje (0,0) "Vision"
 ironMan = Personaje (0,0) "Iron Man"
 thanos = Personaje (0,0) "Thanos"
 
+x = Left wanda
+
 {-Objetos-}
 mjölnir = Objeto (3,3) "Mjölnir"
 escudo = Objeto (3,3) "Escudo"

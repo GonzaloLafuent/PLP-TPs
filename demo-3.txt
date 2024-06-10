@@ -19,7 +19,7 @@ Tenemos las siguiente funciones:
 
 Queremos ver que ∀ u :: Universo . ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u
 Probemos por induccion sobre u, tal que u::[Either Objeto Personaje]
-tomamos P(u): ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u 
+Tomamos P(u): ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u 
 
 CASO BASE:
 -Pruebo que vale P([]):
@@ -28,27 +28,27 @@ CASO BASE:
                             = elem o []                                                                     -Por def de map
                             = False                                                                         -Por def de elem
 
-    -Como el primer lado de la implicacion es False, la implicacion va ser siempre True. Por lo tango vale P([]) 
+    -Como el primer lado de la implicacion es False, la implicacion va ser siempre True. Por lo tanto vale P([]) 
 
 H.I:
 -Supongo que vale P(U): ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u
 
 PASO INDUCTIVO:
 -Quiero ver que ∀ e::Either Objeto Personaje vale P(e:u): ∀ o :: Objeto . elem o (objetos_en e:u) ⇒ elem (Right o) e:u 
--probemos:
-    -tengo que:
+-Probemos:
+    -Tengo que:
 
         elem o (objetos_en e:u) = elem o map objeto_de (filter (es_un_objeto ) e:u)                                                                -Por def de objetos_en 
                                 = elem o map objeto_de (if es_un_objeto e then e:filter (es_un_objeto) u else filter (es_un_objeto) u)             -Por def de filter
 
-    -divido en casos:
-        -si es_un_objeto e = False tenemos que:
+    -Divido en casos:
+        -Si es_un_objeto e = False tenemos que:
             -elem o map objeto_de (if es_un_objeto e then e:filter (es_un_objeto) u else filter (es_un_objeto) u) = elem o map objeto_de (filter (es_un_objeto) u)   -por la definicion anterior
 
-            -Luego tenemos que elem o map (filter (objetos_en) e:u) = elem o map (filter (objetos_en) u) = elem o objeto_en u por defincion de objeto_en 
-            -Si elem o (objetos_en e:u) = elem o objeto_en u = False sabemos que el segundo lado de la implicacion no importa, tal que siempre sera verdadera la implicacion
-            -Si elem o (objetos_en e:u) = elem o objeto_en u = True por H.I sabemos que elem o (objetos_en u) ⇒ elem (Right o) u. como el primer lado de implicacion es verdadero
-            -para que valga dicha implicacion valga el segundo lado tambien debe serlo, por lo tanto elem (Right o) u = True.
+            -Luego tenemos que elem o (map objeto_de (filter (es_un_objeto) e:u)) = elem o (map objeto_de (filter (es_un_objeto) u)) = elem o (objetos_en u) por defincion de objetos_en 
+            -Si elem o (objetos_en e:u) = elem o (objeto_en u) = False sabemos que el segundo lado de la implicacion no importa, tal que siempre sera verdadera la implicacion
+            -Si elem o (objetos_en e:u) = elem o (objeto_en u) = True por H.I sabemos que elem o (objetos_en u) ⇒ elem (Right o) u. como el primer lado de implicacion es verdadero
+             para que valga dicha implicacion valga el segundo lado tambien debe serlo, por lo tanto elem (Right o) u = True.
             -Si elem (Right o) u = True entonces o∈u, por lo tanto elem (Right o) e:u = True.
             -Concluimos que vale elem o (objetos_en e:u) ⇒ elem (Right o) e:u
 

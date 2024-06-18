@@ -41,13 +41,13 @@ PASO INDUCTIVO:
         elem o (objetos_en e:u) = elem o (map objeto_de (filter es_un_objeto e:u))                                                               -Por def de objetos_en 
                                 = elem o (map objeto_de (if es_un_objeto e then e:(filter es_un_objeto u) else filter es_un_objeto u))           -Por def de filter
 
-    -Por principio de induccion sobre booleanos, probemos para dos casos. Cuando es_un_objeto e = true o cuando es_un_objeto e = false:
+    -Por principio de extensionalidad sobre booleanos, probemos para dos casos. Cuando es_un_objeto e = true o cuando es_un_objeto e = false:
         -Si (es_un_objeto e) = False, por la igualdad anterior, tenemos que:
-            -elem o (map objeto_de (if es_un_objeto e then e:(filter es_un_objeto u) else filter es_un_objeto u)) = elem o (map objeto_de (filter es_un_objeto u))   
-            -Luego tenemos que elem o (map objeto_de (filter es_un_objeto e:u)) = elem o (map objeto_de (filter es_un_objeto u)) = elem o (objetos_en u) por defincion de objetos_en
+            -elem o (map objeto_de (if False then e:(filter es_un_objeto u) else filter es_un_objeto u)) = elem o (map objeto_de (filter es_un_objeto u))               -Por def de if            
+                                                                                                         = elem o (objetos_en u)                                        -Por def de objetos_en
             -por lo tanto obtenemos que elem o (objetos_en e:u) = elem o (objetos_en u) para este caso.
 
-	        -Aplicando nuevamente principio de induccion sobre booleanos tenemos dos casos para analizar la implicacion:	 
+	        -Aplicando nuevamente principio de extensionalidad sobre booleanos tenemos dos casos para analizar la implicacion:	 
             	-Si elem o (objetos_en e:u) = elem o (objetos_en u) = False:
 			        -Sabemos que el segundo lado de la implicacion no importa, tal que siempre sera verdadera la implicacion. por lo tanto para este caso vale la implicacion
             	-Si elem o (objetos_en e:u) = elem o (objetos_en u) = True: 
@@ -68,7 +68,7 @@ PASO INDUCTIVO:
             -Concluimos que vale elem o (objetos_en e:u) ⇒ elem (Right o) e:u para ambos casos.
 
         -Si (es_un_objeto e) = True tenemos que:
-            -elem o (map objeto_de (if es_un_objeto e then e:(filter (es_un_objeto) u) else filter (es_un_objeto) u)) = elem o (map objeto_de (e:filter (es_un_objeto) u))
+            -elem o (map objeto_de (if True then e:(filter (es_un_objeto) u) else filter (es_un_objeto) u)) = elem o (map objeto_de (e:filter (es_un_objeto) u))     -Por def de if
 
             -luego: 
                     -elem o (map objeto_de e:(filter (es_un_objeto) u)) = elem o (objeto_de e) : (map objeto_de (filter (es_un_objeto) u))                   -Por def de map
@@ -76,7 +76,7 @@ PASO INDUCTIVO:
                                                                       	= o == (objeto_de e) || elem o (objetos_en u)                                        -Por def de elem
 
 	    -Por lo tanto en este caso elem o (objetos_en e:u) = o == objeto_de e || elem o (objetos_en u).
-            -Por induccion sobre booleanos debemos ver los casos cuando o == (objeto_de e) || elem o (objetos_en u) = False o cuando o == (objeto_de e) || elem o (objetos_en u) = True.
+            -Por principio de extensionalidad sobre booleanos debemos ver los casos cuando o == (objeto_de e) || elem o (objetos_en u) = False o cuando o == (objeto_de e) || elem o (objetos_en u) = True.
             
 	        -Para o == (objeto_de e) || elem o (objetos_en u) = True tenemos los siguientes casos:
                 -o == (objeto_de e) = True:

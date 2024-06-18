@@ -5,23 +5,35 @@
 %% Ejercicio 1
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
-tablero(_,_,_).
+
+fila(1,[_]).
+fila(N,[_|XS]) :- N\=1, N1 is N-1, fila(N1,XS). 
+
+tablero(1,CC,[TAB]) :- fila(CC,TAB).
+tablero(CF,CC,[F|TAB]) :- CF\=1,fila(CC,F), CF1 is CF-1, tablero(CF1,CC,TAB).
 
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
-ocupar(_,_).
+ocupar(pos(X,Y),TAB) :- nth0(X,TAB,FX,RTAB), nth0(Y,FX,_,RF), nth0(Y,FN,ocupada,RF), nth0(X,TAB,FN,RTAB).
 
 %% Ejercicio 3
 %% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
 %% un átomo de la forma pos(F', C') y pos(F',C') sea una celda contigua a
 %% pos(F,C), donde Pos=pos(F,C). Las celdas contiguas puede ser a lo sumo cuatro
 %% dado que el robot se moverá en forma ortogonal.
-vecino(_,_,_).
+
+posicionValida(pos(X,Y),[F|TAB]) :- 0=<X, 0=<Y , length([F|TAB],CF), length(F,CC), CF > X, CC > Y. 
+
+vecino(pos(X,Y),T,pos(Z,W)) :- Z is X+1, W is Y, posicionValida(pos(Z,W),T).
+vecino(pos(X,Y),T,pos(Z,W)) :- Z is X-1, W is Y, posicionValida(pos(Z,W),T).
+vecino(pos(X,Y),T,pos(Z,W)) :- Z is X, W is Y+1, posicionValida(pos(Z,W),T).
+vecino(pos(X,Y),T,pos(Z,W)) :- Z is X, W is Y-1, posicionValida(pos(Z,W),T).
 
 %% Ejercicio 4
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
 %% debe ser una celda transitable (no ocupada) en el Tablero
-vecinoLibre(_,_,_).
+
+vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), nth0(W,F,E,_), E is _.  
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Definicion de caminos

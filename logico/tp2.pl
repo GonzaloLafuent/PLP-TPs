@@ -33,7 +33,7 @@ vecino(pos(X,Y),T,pos(Z,W)) :- Z is X, W is Y-1, posicionValida(pos(Z,W),T).
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
 %% debe ser una celda transitable (no ocupada) en el Tablero
 
-vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), nth0(W,F,E,_), E is _.  
+vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), nth0(W,F,E,_).  
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Definicion de caminos
@@ -47,7 +47,14 @@ vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), 
 %% Notar que la cantidad de caminos es finita y por ende se tiene que poder recorrer
 %% todas las alternativas eventualmente.
 %% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
-camino(_,_,_,_).
+
+/*
+  camino y camino2 no estan probados que funcionan, solo es un intento de algo que podria tener sentido
+*/
+caminoAux(pos(XF,YF),pos(XF,YF),T,[pos(XF,YF)],_).
+caminoAux(pos(XI,YI),pos(XF,YF),T,[pos(XI,YI)|C],[pos(XI,YI)|VISIT]) :- vecinoLibre(pos(X,Y),T,V) ,caminoAux(V,T,C,VISIT), not(member(pos(X,Y),VISIT)).
+
+camino(pos(XI,YI),pos(XF,YF),T,C) :- caminoAux(pos(XI,YI),pos(XF,YF),T,VISIT).
 
 %% 5.1. Analizar la reversibilidad de los parámetros Fin y Camino justificando adecuadamente en cada
 %% caso por qué el predicado se comporta como lo hace
@@ -57,7 +64,7 @@ camino(_,_,_,_).
 %% Ejercicio 6
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero que las soluciones
 %% se instancien en orden creciente de longitud.
-camino2(_,_,_,_).
+camino2(INIT,FIN,T,C) :- camino(INIT,FIN,T,C1), sort(C1,C).
 
 %% 6.1. Analizar la reversibilidad de los parámetros Inicio y Camino justificando adecuadamente en
 %% cada caso por qué el predicado se comporta como lo hace.

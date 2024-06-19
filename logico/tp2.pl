@@ -33,7 +33,7 @@ vecino(pos(X,Y),T,pos(Z,W)) :- Z is X, W is Y-1, posicionValida(pos(Z,W),T).
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
 %% debe ser una celda transitable (no ocupada) en el Tablero
 
-vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), nth0(W,F,E,_).  
+vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), nth0(W,F,E,_), var(E).  
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Definicion de caminos
@@ -48,13 +48,10 @@ vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), 
 %% todas las alternativas eventualmente.
 %% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
 
-/*
-  camino y camino2 no estan probados que funcionan, solo es un intento de algo que podria tener sentido
-*/
-caminoAux(pos(XF,YF),pos(XF,YF),T,[pos(XF,YF)],_).
-caminoAux(pos(XI,YI),pos(XF,YF),T,[pos(XI,YI)|C],[pos(XI,YI)|VISIT]) :- vecinoLibre(pos(X,Y),T,V) ,caminoAux(V,T,C,VISIT), not(member(pos(X,Y),VISIT)).
+caminoAux(pos(XF,YF),pos(XF,YF),_,[pos(XF,YF)],VISIT1) :- not(member(pos(XF,YF),VISIT1)).
+caminoAux(pos(XI,YI),pos(XF,YF),T,[pos(XI,YI)|C],VISIT1) :- not(member(pos(XI,YI),VISIT1)), vecinoLibre(pos(XI,YI),T,V), append(VISIT1,[pos(XI,YI)],VISIT2),caminoAux(V,pos(XF,YF),T,C,VISIT2).
 
-camino(pos(XI,YI),pos(XF,YF),T,C) :- caminoAux(pos(XI,YI),pos(XF,YF),T,VISIT).
+camino(pos(XI,YI),pos(XF,YF),T,[pos(XI,YI)|C]) :- vecinoLibre(pos(XI,YI),T,V), caminoAux(V,pos(XF,YF),T,C,[pos(XI,YI)]).
 
 %% 5.1. Analizar la reversibilidad de los parámetros Fin y Camino justificando adecuadamente en cada
 %% caso por qué el predicado se comporta como lo hace
@@ -64,7 +61,7 @@ camino(pos(XI,YI),pos(XF,YF),T,C) :- caminoAux(pos(XI,YI),pos(XF,YF),T,VISIT).
 %% Ejercicio 6
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero que las soluciones
 %% se instancien en orden creciente de longitud.
-camino2(INIT,FIN,T,C) :- camino(INIT,FIN,T,C1), sort(C1,C).
+camino2(INIT,FIN,T,C1) :- camino(INIT,FIN,T,C1), 
 
 %% 6.1. Analizar la reversibilidad de los parámetros Inicio y Camino justificando adecuadamente en
 %% cada caso por qué el predicado se comporta como lo hace.
@@ -73,7 +70,7 @@ camino2(INIT,FIN,T,C) :- camino(INIT,FIN,T,C1), sort(C1,C).
 %% Ejercicio 7
 %% caminoOptimo(+Inicio, +Fin, +Tablero, -Camino) será verdadero cuando Camino sea un
 %% camino óptimo sobre Tablero entre Inicio y Fin. Notar que puede no ser único.
-caminoOptimo(_,_,_,_).
+caminoOptimo(INIT,FIN,T,C1) :- camino(INIT,FIN,T,C1), length(C1,N1), not((camino(INIT,FIN,T,C2),length(C2,N2), N2 < N1)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Tableros simultáneos

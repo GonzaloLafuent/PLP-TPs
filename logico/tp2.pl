@@ -61,7 +61,10 @@ camino(pos(XI,YI),pos(XF,YF),T,[pos(XI,YI)|C]) :- vecinoLibre(pos(XI,YI),T,V), c
 %% Ejercicio 6
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero que las soluciones
 %% se instancien en orden creciente de longitud.
-camino2(INIT,FIN,T,C1) :- camino(INIT,FIN,T,C1), 
+
+longitudCaminoMaximo(INIT,FIN,T,N1) :- camino(INIT,FIN,T,C1), length(C1,N1), not((camino(INIT,FIN,T,C2),length(C2,N2),N1 < N2)), !.
+
+camino2(INIT,FIN,T,C) :- longitudCaminoMaximo(INIT,FIN,T,N1), between(1,N1,N2), camino(INIT,FIN,T,C), length(C,N2). 
 
 %% 6.1. Analizar la reversibilidad de los parámetros Inicio y Camino justificando adecuadamente en
 %% cada caso por qué el predicado se comporta como lo hace.
@@ -80,7 +83,7 @@ caminoOptimo(INIT,FIN,T,C1) :- camino(INIT,FIN,T,C1), length(C1,N1), not((camino
 %% caminoDual(+Inicio, +Fin, +Tablero1, +Tablero2, -Camino) será verdadero
 %% cuando Camino sea un camino desde Inicio hasta Fin pasando al mismo tiempo
 %% sólo por celdas transitables de ambos tableros.
-caminoDual(_,_,_,_,_).
+caminoDual(INIT,FIN,T1,T2,C1) :- camino(INIT,FIN,T1,C1), camino(INIT,FIN,T2,C2), append(C1,[],C2).
 
 %%%%%%%%
 %% TESTS

@@ -10,8 +10,8 @@
 fila(1,[_]).
 fila(CantPosiciones,[_|RestoFila]) :- CantPosiciones\=1, PosicionesPorAgregar is CantPosiciones-1, fila(PosicionesPorAgregar,RestoFila). 
 
-tablero(1,CantColumns,[Fila]) :- fila(CantColumns,Fila).
-tablero(CantFilas,CantColumns,[Fila|RestoTablero]) :- CantFilas\=1,fila(CantColumns,Fila), 
+tablero(0,_,[]).
+tablero(CantFilas,CantColumns,[Fila|RestoTablero]) :- CantFilas\=0,fila(CantColumns,Fila), 
                                                       FilasPorAgregar is CantFilas-1, tablero(FilasPorAgregar,CantColumns,RestoTablero).
 
 %% Ejercicio 2
@@ -62,6 +62,7 @@ generarCamino(pos(XA,YA),pos(XF,YF),Tablero,[pos(XA,YA)|RestoCamino],Visitados) 
                                                                                    append(Visitados,[pos(XA,YA)],VisitadosNuevo),
                                                                                    generarCamino(ProxPosicion,pos(XF,YF),Tablero,RestoCamino,VisitadosNuevo).
 
+camino(pos(XF,YF),pos(XF,YF),Tablero,[pos(XF,YF)]) :- length(Tablero,Longitud), Longitud =\= 0.
 camino(pos(XI,YI),pos(XF,YF),Tablero,[pos(XI,YI)|Camino]) :- vecinoLibre(pos(XI,YI),Tablero,ProxPosicion), 
                                                              generarCamino(ProxPosicion,pos(XF,YF),Tablero,Camino,[pos(XI,YI)]).
 
@@ -108,23 +109,57 @@ caminoDual(Inicio,Fin,Tablero1,Tablero2,Camino) :- camino(Inicio,Fin,Tablero1,Ca
 %% TESTS
 %%%%%%%%
 
-cantidadTestsTablero(2). % Actualizar con la cantidad de tests que entreguen
-testTablero(1) :- tablero(0,0,[]).
-testTablero(2) :- ocupar(pos(0,0), [[ocupada]]).
-% Agregar más tests
+tablero(tablero2x2,T) :- tablero(2,2,T).
+tablero(tablero3x3,T) :- tablero(3,3,T).
+tablero(tablero5x5,T) :- tablero(5,5,T).
+tablero(tablero0x0,T) :- tablero(0,0,T).
 
-cantidadTestsVecino(1). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsTablero(8). % Actualizar con la cantidad de tests que entreguen
+testTablero(1) :- tablero(tablero0x0,[]).
+testTablero(2) :- tablero(tablero2x2,[[_,_],[_,_]]).
+testTablero(3) :- tablero(tablero3x3,[[_,_,_],[_,_,_],[_,_,_]]).
+testTablero(4) :- tablero(tablero5x5,[[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_]]).
+testTablero(5) :- ocupar(pos(0,0), [[ocupada]]).
+testTablero(6) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), ocupar(pos(0,0),T),
+                  T = [[ocupada,_,_],[_,ocupada,_],[_,_,_]].
+testTablero(7) :- tablero(tablero2x2,T), ocupar(pos(0,0),T), ocupar(pos(1,0),T),
+                  T = [[ocupada,_],[ocupada,_]].
+testTablero(8) :- tablero(tablero5x5,T), ocupar(pos(4,1),T),ocupar(pos(2,2),T), ocupar(pos(2,1),T),
+                  T = [[_,_,_,_,_],[_,_,_,_,_],[_,ocupada,ocupada,_,_],[_,_,_,_,_],[_,ocupada,_,_,_]].
+
+cantidadTestsVecino(6). 
 testVecino(1) :- vecino(pos(0,0), [[_,_]], pos(0,1)).
-% Agregar más tests
+testVecino(2) :- tablero(tablero2x2,T), vecino(pos(1,1),T,pos(1,0)),vecino(pos(1,1),T,pos(0,1)).
+testVecino(3) :- tablero(tablero3x3,T), vecino(pos(1,1),T,pos(0,1)), vecino(pos(1,1),T,pos(2,1)),
+                 vecino(pos(1,1),T,pos(1,0)), vecino(pos(1,1),T,pos(1,2)).
+testVecino(4) :- tablero(tablero2x2,T), ocupar(pos(0,1),T), vecinoLibre(pos(0,0),T,pos(1,0)).
+testVecino(5) :- not((tablero(tablero2x2,T), ocupar(pos(0,1),T),ocupar(pos(1,0),T), 
+                      vecinoLibre(pos(0,0),T,pos(0,1)), vecinoLibre(pos(0,0),T,pos(1,0)))). 
+testVecino(6) :- tablero(tablero3x3,T), ocupar(pos(0,1),T), ocupar(pos(2,1),T), 
+                 vecinoLibre(pos(1,1),T,pos(1,0)), vecinoLibre(pos(1,1),T,pos(1,2)).
+testVecino(7) :- tablero(tablero5x5,T), vecinoLibre(pos(4,4),T,pos(4,3)), vecinoLibre(pos(4,4),T,pos(3,4)).
 
-cantidadTestsCamino(0). % Actualizar con la cantidad de tests que entreguen
-% Agregar más tests
+cantidadTestsCamino(3).
+testCamino(1) :- not((tablero(tablero0x0,T), camino(pos(0,0),pos(0,0),T,[pos(0,0)]))).
+testCamino(2) :- tablero(tablero2x2,T), camino(pos(0,0),pos(0,0),T,[pos(0,0)]).
+testCamino(3) :- tablero(tablero2x2,T), camino(pos(0,0),pos(1,1),T,[pos(0,0),pos(0,1),pos(1,1)]),
+                 camino(pos(0,0),pos(1,1),T,[pos(0,0),pos(1,0),pos(1,1)]).
+testCamino(4) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), 
+                 camino(pos(0,0),pos(2,2),T,[pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2)]),
+                 camino(pos(0,0),pos(2,2),T,[pos(0, 0), pos(0, 1), pos(0, 2), pos(1, 2), pos(2, 2)]).
 
-cantidadTestsCaminoOptimo(0). % Actualizar con la cantidad de tests que entreguen
-% Agregar más tests
 
-cantidadTestsCaminoDual(0). % Actualizar con la cantidad de tests que entreguen
-% Agregar más tests
+cantidadTestsCaminoOptimo(3).
+testCaminoOptimo(1) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), 
+                       caminoOptimo(pos(0,0),pos(2,2),T,[pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2)]),
+                       caminoOptimo(pos(0,0),pos(2,2),T,[pos(0, 0), pos(0, 1), pos(0, 2), pos(1, 2), pos(2, 2)]).
+testCaminoOptimo(2) :- tablero(tablero3x3,T),caminoOptimo(pos(0,0),pos(1,1),T,C), length(C,N), N is 3.
+testCaminoOptimo(3) :- tablero(tablero3x3,T),caminoOptimo(pos(0,0),pos(2,2),T,C), length(C,N), N is 5.
+testCaminoOptimo(4) :- tablero(tablero5x5,T), caminoOptimo(pos(2,3),pos(2,4),T,C), length(C,N), N is 2.
+
+cantidadTestsCaminoDual(1).
+testCaminoDual(1) :- not((tablero(tablero2x2,T1), tablero(tablero2x2,T2), ocupar(pos(1,0),T2), 
+                     caminoDual(pos(0,0),pos(1,1),T1,T2,[pos(0,0),pos(1,0),pos(1,1)]))).
 
 tests(tablero) :- cantidadTestsTablero(M), forall(between(1,M,N), testTablero(N)).
 tests(vecino) :- cantidadTestsVecino(M), forall(between(1,M,N), testVecino(N)).

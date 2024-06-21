@@ -16,8 +16,18 @@ tablero(CantFilas,CantColumns,[Fila|RestoTablero]) :- CantFilas\=0,fila(CantColu
 
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
-ocupar(pos(X,Y),Tablero) :- nth0(X,Tablero,FilaX,RestoTablero), nth0(Y,FilaX,_,RestoFila), 
-                            nth0(Y,FilaNueva,ocupada,RestoFila), nth0(X,Tablero,FilaNueva,RestoTablero).
+ 
+esTablero([]).
+esTablero(TAB) :- mismoLargo(TAB,_).
+
+%% mismoLargo(?TAB,?L) será verdadero cuando todas las filas tengan mismo largo.
+mismoLargo([],_).
+mismoLargo([F|TAB],L) :- var(F), mismoLargo(TAB,L), length(F,L).
+mismoLargo([F|TAB],L) :- nonvar(F), length(F,L), mismoLargo(TAB,L).
+
+ocupar(pos(X,Y),Tablero) :- nth0(X,Tablero,FilaX,RestoTablero), nth0(Y,FilaX,E,RestoFila),
+                            nth0(Y,FilaNueva,ocupada,RestoFila), nth0(X,Tablero,FilaNueva,RestoTablero),
+                            esTablero(Tablero), length(Tablero,N), N > 1.
 
 %% Ejercicio 3
 %% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
@@ -25,7 +35,7 @@ ocupar(pos(X,Y),Tablero) :- nth0(X,Tablero,FilaX,RestoTablero), nth0(Y,FilaX,_,R
 %% pos(F,C), donde Pos=pos(F,C). Las celdas contiguas puede ser a lo sumo cuatro
 %% dado que el robot se moverá en forma ortogonal.
 
-%% posicionValida(+Posicion,+Tablero) sera verdadero si la posicion dad esta dentro de los limites del tablero.
+%% posicionValida(+Posicion,+Tablero) sera verdadero si la posicion dada esta dentro de los limites del tablero.
 posicionValida(pos(X,Y),[Fila|RestoTablero]) :- 0=<X, 0=<Y , length([Fila|RestoTablero],CantFilas), length(Fila,CantColums), CantFilas > X, CantColums > Y. 
 
 vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1 + 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).

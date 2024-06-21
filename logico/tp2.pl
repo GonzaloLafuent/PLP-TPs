@@ -6,15 +6,18 @@
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
 
+%% fila(+CantPosiciones,-Fila) instancia una estructura de una fila de tamaño CantPosiciones para la creacion de un tablero.
 fila(1,[_]).
-fila(N,[_|XS]) :- N\=1, N1 is N-1, fila(N1,XS). 
+fila(CantPosiciones,[_|RestoFila]) :- CantPosiciones\=1, PosicionesPorAgregar is CantPosiciones-1, fila(PosicionesPorAgregar,RestoFila). 
 
-tablero(1,CC,[TAB]) :- fila(CC,TAB).
-tablero(CF,CC,[F|TAB]) :- CF\=1,fila(CC,F), CF1 is CF-1, tablero(CF1,CC,TAB).
+tablero(0,_,[]).
+tablero(CantFilas,CantColumns,[Fila|RestoTablero]) :- CantFilas\=0,fila(CantColumns,Fila), 
+                                                      FilasPorAgregar is CantFilas-1, tablero(FilasPorAgregar,CantColumns,RestoTablero).
 
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
-ocupar(pos(X,Y),TAB) :- nth0(X,TAB,FX,RTAB), nth0(Y,FX,_,RF), nth0(Y,FN,ocupada,RF), nth0(X,TAB,FN,RTAB).
+ocupar(pos(X,Y),Tablero) :- nth0(X,Tablero,FilaX,RestoTablero), nth0(Y,FilaX,_,RestoFila), 
+                            nth0(Y,FilaNueva,ocupada,RestoFila), nth0(X,Tablero,FilaNueva,RestoTablero).
 
 %% Ejercicio 3
 %% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
@@ -22,18 +25,20 @@ ocupar(pos(X,Y),TAB) :- nth0(X,TAB,FX,RTAB), nth0(Y,FX,_,RF), nth0(Y,FN,ocupada,
 %% pos(F,C), donde Pos=pos(F,C). Las celdas contiguas puede ser a lo sumo cuatro
 %% dado que el robot se moverá en forma ortogonal.
 
-posicionValida(pos(X,Y),[F|TAB]) :- 0=<X, 0=<Y , length([F|TAB],CF), length(F,CC), CF > X, CC > Y. 
+%% posicionValida(+Posicion,+Tablero) sera verdadero si la posicion dad esta dentro de los limites del tablero.
+posicionValida(pos(X,Y),[Fila|RestoTablero]) :- 0=<X, 0=<Y , length([Fila|RestoTablero],CantFilas), length(Fila,CantColums), CantFilas > X, CantColums > Y. 
 
-vecino(pos(X,Y),T,pos(Z,W)) :- Z is X+1, W is Y, posicionValida(pos(Z,W),T).
-vecino(pos(X,Y),T,pos(Z,W)) :- Z is X-1, W is Y, posicionValida(pos(Z,W),T).
-vecino(pos(X,Y),T,pos(Z,W)) :- Z is X, W is Y+1, posicionValida(pos(Z,W),T).
-vecino(pos(X,Y),T,pos(Z,W)) :- Z is X, W is Y-1, posicionValida(pos(Z,W),T).
+vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1 + 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).
+vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1 - 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).
+vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1, Y2 is Y1 + 1, posicionValida(pos(X2,Y2),Tablero).
+vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1, Y2 is Y1 - 1, posicionValida(pos(X2,Y2),Tablero).
 
 %% Ejercicio 4
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
 %% debe ser una celda transitable (no ocupada) en el Tablero
 
-vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), nth0(W,F,E,_).  
+vecinoLibre(pos(X,Y),Tablero,pos(Xvecino,Yvecino)) :- vecino(pos(X,Y),Tablero,pos(Xvecino,Yvecino)), 
+                                                      nth0(Xvecino,Tablero,Fila,_), nth0(Yvecino,Fila,E,_), var(E).  
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Definicion de caminos
@@ -48,13 +53,18 @@ vecinoLibre(pos(X,Y),T,pos(Z,W)) :- vecino(pos(X,Y),T,pos(Z,W)), nth0(Z,T,F,_), 
 %% todas las alternativas eventualmente.
 %% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
 
-/*
-  camino y camino2 no estan probados que funcionan, solo es un intento de algo que podria tener sentido
-*/
-caminoAux(pos(XF,YF),pos(XF,YF),T,[pos(XF,YF)],_).
-caminoAux(pos(XI,YI),pos(XF,YF),T,[pos(XI,YI)|C],[pos(XI,YI)|VISIT]) :- vecinoLibre(pos(X,Y),T,V) ,caminoAux(V,T,C,VISIT), not(member(pos(X,Y),VISIT)).
+%% generarCamino(+Inicio, +Fin, +Tablero, -Camino, +Visitados) permite generar un camino de inicio a fin manteniendo una lista de los nodos visitados en cada paso.
+%% XI = valor de X en la posicion inicial. YI = valor de Y en la posicion incial.
+%% XF = valor de X en la posicion final. YF = valor de Y en la posicion final.
+%% XA = valor de X en la posicion actual. YA = valor de Y en la posicion actual.
+generarCamino(pos(XF,YF),pos(XF,YF),_,[pos(XF,YF)],Visitados) :- not(member(pos(XF,YF),Visitados)).
+generarCamino(pos(XA,YA),pos(XF,YF),Tablero,[pos(XA,YA)|RestoCamino],Visitados) :- not(member(pos(XA,YA),Visitados)), vecinoLibre(pos(XA,YA),Tablero,ProxPosicion), 
+                                                                                   append(Visitados,[pos(XA,YA)],VisitadosNuevo),
+                                                                                   generarCamino(ProxPosicion,pos(XF,YF),Tablero,RestoCamino,VisitadosNuevo).
 
-camino(pos(XI,YI),pos(XF,YF),T,C) :- caminoAux(pos(XI,YI),pos(XF,YF),T,VISIT).
+camino(pos(XF,YF),pos(XF,YF),Tablero,[pos(XF,YF)]) :- length(Tablero,Longitud), Longitud =\= 0.
+camino(pos(XI,YI),pos(XF,YF),Tablero,[pos(XI,YI)|Camino]) :- vecinoLibre(pos(XI,YI),Tablero,ProxPosicion), 
+                                                             generarCamino(ProxPosicion,pos(XF,YF),Tablero,Camino,[pos(XI,YI)]).
 
 %% 5.1. Analizar la reversibilidad de los parámetros Fin y Camino justificando adecuadamente en cada
 %% caso por qué el predicado se comporta como lo hace
@@ -64,7 +74,15 @@ camino(pos(XI,YI),pos(XF,YF),T,C) :- caminoAux(pos(XI,YI),pos(XF,YF),T,VISIT).
 %% Ejercicio 6
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero que las soluciones
 %% se instancien en orden creciente de longitud.
-camino2(INIT,FIN,T,C) :- camino(INIT,FIN,T,C1), sort(C1,C).
+
+%% longitudCaminoMaximo(+Inicio, +fin, +Tablero, -Longitud) instancia la longitud del camino maximo desde incio a fin dentro de un tablero. 
+longitudCaminoMaximo(Inicio,Fin,Tablero,MaxLongitud) :- camino(Inicio,Fin,Tablero,Camino), length(Camino,MaxLongitud), 
+                                                        not((camino(Inicio,Fin,Tablero,OtroCamino),length(OtroCamino,Longitud),MaxLongitud < Longitud)), !.
+
+%% Utilizo Generate and Test. Para crear los caminos de forma creciente, voy generando las posibles longitudes de caminos para esa posicion de inicio y fin,
+%% luego por cada longitud que genero me fijo si hay un camino valido con esa longitud.
+camino2(Inicio,Fin,Tablero,Camino) :- longitudCaminoMaximo(Inicio,Fin,Tablero,MaxLongitud), between(1,MaxLongitud,Longitud), 
+                                      camino(Inicio,Fin,Tablero,Camino), length(Camino,Longitud). 
 
 %% 6.1. Analizar la reversibilidad de los parámetros Inicio y Camino justificando adecuadamente en
 %% cada caso por qué el predicado se comporta como lo hace.
@@ -73,7 +91,8 @@ camino2(INIT,FIN,T,C) :- camino(INIT,FIN,T,C1), sort(C1,C).
 %% Ejercicio 7
 %% caminoOptimo(+Inicio, +Fin, +Tablero, -Camino) será verdadero cuando Camino sea un
 %% camino óptimo sobre Tablero entre Inicio y Fin. Notar que puede no ser único.
-caminoOptimo(_,_,_,_).
+caminoOptimo(Inicio,Fin,Tablero,Camino) :- camino(Inicio,Fin,Tablero,Camino), length(Camino,Longitud), 
+                                           not((camino(Inicio,Fin,Tablero,OtroCamino),length(OtroCamino,LongitudOtroCamino), LongitudOtroCamino < Longitud)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Tableros simultáneos
@@ -83,29 +102,64 @@ caminoOptimo(_,_,_,_).
 %% caminoDual(+Inicio, +Fin, +Tablero1, +Tablero2, -Camino) será verdadero
 %% cuando Camino sea un camino desde Inicio hasta Fin pasando al mismo tiempo
 %% sólo por celdas transitables de ambos tableros.
-caminoDual(_,_,_,_,_).
+caminoDual(Inicio,Fin,Tablero1,Tablero2,Camino) :- camino(Inicio,Fin,Tablero1,Camino), 
+                                                   camino(Inicio,Fin,Tablero2,Camino2), append(Camino,[],Camino2).
 
 %%%%%%%%
 %% TESTS
 %%%%%%%%
 
-cantidadTestsTablero(2). % Actualizar con la cantidad de tests que entreguen
-testTablero(1) :- tablero(0,0,[]).
-testTablero(2) :- ocupar(pos(0,0), [[ocupada]]).
-% Agregar más tests
+tablero(tablero2x2,T) :- tablero(2,2,T).
+tablero(tablero3x3,T) :- tablero(3,3,T).
+tablero(tablero5x5,T) :- tablero(5,5,T).
+tablero(tablero0x0,T) :- tablero(0,0,T).
 
-cantidadTestsVecino(1). % Actualizar con la cantidad de tests que entreguen
+cantidadTestsTablero(8). % Actualizar con la cantidad de tests que entreguen
+testTablero(1) :- tablero(tablero0x0,[]).
+testTablero(2) :- tablero(tablero2x2,[[_,_],[_,_]]).
+testTablero(3) :- tablero(tablero3x3,[[_,_,_],[_,_,_],[_,_,_]]).
+testTablero(4) :- tablero(tablero5x5,[[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_]]).
+testTablero(5) :- ocupar(pos(0,0), [[ocupada]]).
+testTablero(6) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), ocupar(pos(0,0),T),
+                  T = [[ocupada,_,_],[_,ocupada,_],[_,_,_]].
+testTablero(7) :- tablero(tablero2x2,T), ocupar(pos(0,0),T), ocupar(pos(1,0),T),
+                  T = [[ocupada,_],[ocupada,_]].
+testTablero(8) :- tablero(tablero5x5,T), ocupar(pos(4,1),T),ocupar(pos(2,2),T), ocupar(pos(2,1),T),
+                  T = [[_,_,_,_,_],[_,_,_,_,_],[_,ocupada,ocupada,_,_],[_,_,_,_,_],[_,ocupada,_,_,_]].
+
+cantidadTestsVecino(6). 
 testVecino(1) :- vecino(pos(0,0), [[_,_]], pos(0,1)).
-% Agregar más tests
+testVecino(2) :- tablero(tablero2x2,T), vecino(pos(1,1),T,pos(1,0)),vecino(pos(1,1),T,pos(0,1)).
+testVecino(3) :- tablero(tablero3x3,T), vecino(pos(1,1),T,pos(0,1)), vecino(pos(1,1),T,pos(2,1)),
+                 vecino(pos(1,1),T,pos(1,0)), vecino(pos(1,1),T,pos(1,2)).
+testVecino(4) :- tablero(tablero2x2,T), ocupar(pos(0,1),T), vecinoLibre(pos(0,0),T,pos(1,0)).
+testVecino(5) :- not((tablero(tablero2x2,T), ocupar(pos(0,1),T),ocupar(pos(1,0),T), 
+                      vecinoLibre(pos(0,0),T,pos(0,1)), vecinoLibre(pos(0,0),T,pos(1,0)))). 
+testVecino(6) :- tablero(tablero3x3,T), ocupar(pos(0,1),T), ocupar(pos(2,1),T), 
+                 vecinoLibre(pos(1,1),T,pos(1,0)), vecinoLibre(pos(1,1),T,pos(1,2)).
+testVecino(7) :- tablero(tablero5x5,T), vecinoLibre(pos(4,4),T,pos(4,3)), vecinoLibre(pos(4,4),T,pos(3,4)).
 
-cantidadTestsCamino(0). % Actualizar con la cantidad de tests que entreguen
-% Agregar más tests
+cantidadTestsCamino(3).
+testCamino(1) :- not((tablero(tablero0x0,T), camino(pos(0,0),pos(0,0),T,[pos(0,0)]))).
+testCamino(2) :- tablero(tablero2x2,T), camino(pos(0,0),pos(0,0),T,[pos(0,0)]).
+testCamino(3) :- tablero(tablero2x2,T), camino(pos(0,0),pos(1,1),T,[pos(0,0),pos(0,1),pos(1,1)]),
+                 camino(pos(0,0),pos(1,1),T,[pos(0,0),pos(1,0),pos(1,1)]).
+testCamino(4) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), 
+                 camino(pos(0,0),pos(2,2),T,[pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2)]),
+                 camino(pos(0,0),pos(2,2),T,[pos(0, 0), pos(0, 1), pos(0, 2), pos(1, 2), pos(2, 2)]).
 
-cantidadTestsCaminoOptimo(0). % Actualizar con la cantidad de tests que entreguen
-% Agregar más tests
 
-cantidadTestsCaminoDual(0). % Actualizar con la cantidad de tests que entreguen
-% Agregar más tests
+cantidadTestsCaminoOptimo(3).
+testCaminoOptimo(1) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), 
+                       caminoOptimo(pos(0,0),pos(2,2),T,[pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2)]),
+                       caminoOptimo(pos(0,0),pos(2,2),T,[pos(0, 0), pos(0, 1), pos(0, 2), pos(1, 2), pos(2, 2)]).
+testCaminoOptimo(2) :- tablero(tablero3x3,T),caminoOptimo(pos(0,0),pos(1,1),T,C), length(C,N), N is 3.
+testCaminoOptimo(3) :- tablero(tablero3x3,T),caminoOptimo(pos(0,0),pos(2,2),T,C), length(C,N), N is 5.
+testCaminoOptimo(4) :- tablero(tablero5x5,T), caminoOptimo(pos(2,3),pos(2,4),T,C), length(C,N), N is 2.
+
+cantidadTestsCaminoDual(1).
+testCaminoDual(1) :- not((tablero(tablero2x2,T1), tablero(tablero2x2,T2), ocupar(pos(1,0),T2), 
+                     caminoDual(pos(0,0),pos(1,1),T1,T2,[pos(0,0),pos(1,0),pos(1,1)]))).
 
 tests(tablero) :- cantidadTestsTablero(M), forall(between(1,M,N), testTablero(N)).
 tests(vecino) :- cantidadTestsVecino(M), forall(between(1,M,N), testVecino(N)).

@@ -2,6 +2,11 @@
 %% Tablero
 %%%%%%%%%%%%%%%%%%%%%%%%
 
+tablero(ej5x5, T) :-
+tablero(5, 5, T),
+ocupar(pos(1, 1), T),
+ocupar(pos(1, 2), T).
+
 %% Ejercicio 1
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
@@ -19,11 +24,10 @@ ocupar(pos(0,J),[F|TAB]) :- ocuparFila(J,F), esTablero([F|TAB]).
 ocupar(pos(I,J),[F|TAB]) :- I>0, I2 is I-1, ocupar(pos(I2,J),TAB), esTablero([F|TAB]).
 
 %% ocuparFila(+J,?Fila) será verdadero cuando la columna J esté ocupada.
-ocuparFila(0,[ocupar|F]) :- length(F,L), L>=0.
+ocuparFila(0,[E|_]) :- var(E), E = ocupar.
 ocuparFila(J,[_|FS]) :- J>0, J2 is J-1, ocuparFila(J2,FS).
 
 %% esTablero(?Tablero) será verdadero cuando el Tablero tenga filas de mismo largo.
-esTablero([]).
 esTablero(TAB) :- mismoLargo(TAB,_).
 
 %% mismoLargo(?TAB,?L) será verdadero cuando todas las filas tengan mismo largo.
@@ -36,7 +40,16 @@ mismoLargo([F|TAB],L) :- nonvar(F), length(F,L), mismoLargo(TAB,L).
 %% un átomo de la forma pos(F', C') y pos(F',C') sea una celda contigua a
 %% pos(F,C), donde Pos=pos(F,C). Las celdas contiguas puede ser a lo sumo cuatro
 %% dado que el robot se moverá en forma ortogonal.
-vecino(_,_,_).
+vecino(PI,[F|TAB],pos(IV,JV)) :- distDesde(PI,pos(IV,JV),1), IV>=0, JV>=0,
+                                 length([F|TAB],LF), IV<LF, 
+                                 length(F,LC), JV<LC.
+
+%% distDesde(+posicioInicial, ?posicionFinal, ?dist) sera verdadero cuando la posicionFinal este en un eje
+%% a dist desde la otra
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II+D, JF is JI.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II-D, JF is JI.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II, JF is JI+D.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II, JF is JI-D.
 
 %% Ejercicio 4
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino

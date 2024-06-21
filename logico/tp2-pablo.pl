@@ -36,7 +36,16 @@ mismoLargo([F|TAB],L) :- nonvar(F), length(F,L), mismoLargo(TAB,L).
 %% un átomo de la forma pos(F', C') y pos(F',C') sea una celda contigua a
 %% pos(F,C), donde Pos=pos(F,C). Las celdas contiguas puede ser a lo sumo cuatro
 %% dado que el robot se moverá en forma ortogonal.
-vecino(_,_,_).
+vecino(PI,[F|TAB],pos(IV,JV)) :- distDesde(PI,pos(IV,JV),1), IV>=0, JV>=0,
+                                 length([F|TAB],LF), IV<LF, 
+                                 length(F,LC), JV<LC.
+
+%% distDesde(+posicioInicial, ?posicionFinal, ?dist) sera verdadero cuando la posicionFinal este en un eje
+%% a dist desde la otra
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II+D, JF is JI.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II-D, JF is JI.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II, JF is JI+D.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II, JF is JI-D.
 
 %% Ejercicio 4
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino

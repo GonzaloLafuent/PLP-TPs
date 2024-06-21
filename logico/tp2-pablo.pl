@@ -2,6 +2,11 @@
 %% Tablero
 %%%%%%%%%%%%%%%%%%%%%%%%
 
+tablero(ej5x5, T) :-
+tablero(5, 5, T),
+ocupar(pos(1, 1), T),
+ocupar(pos(1, 2), T).
+
 %% Ejercicio 1
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
@@ -19,11 +24,10 @@ ocupar(pos(0,J),[F|TAB]) :- ocuparFila(J,F), esTablero([F|TAB]).
 ocupar(pos(I,J),[F|TAB]) :- I>0, I2 is I-1, ocupar(pos(I2,J),TAB), esTablero([F|TAB]).
 
 %% ocuparFila(+J,?Fila) será verdadero cuando la columna J esté ocupada.
-ocuparFila(0,[ocupar|F]) :- length(F,L), L>=0.
+ocuparFila(0,[E|_]) :- var(E), E = ocupar.
 ocuparFila(J,[_|FS]) :- J>0, J2 is J-1, ocuparFila(J2,FS).
 
 %% esTablero(?Tablero) será verdadero cuando el Tablero tenga filas de mismo largo.
-esTablero([]).
 esTablero(TAB) :- mismoLargo(TAB,_).
 
 %% mismoLargo(?TAB,?L) será verdadero cuando todas las filas tengan mismo largo.

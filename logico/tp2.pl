@@ -38,10 +38,10 @@ ocupar(pos(X,Y),Tablero) :- nth0(X,Tablero,FilaX,RestoTablero), nth0(Y,FilaX,E,R
 %% posicionValida(+Posicion,+Tablero) sera verdadero si la posicion dada esta dentro de los limites del tablero.
 posicionValida(pos(X,Y),[Fila|RestoTablero]) :- 0=<X, 0=<Y , length([Fila|RestoTablero],CantFilas), length(Fila,CantColums), CantFilas > X, CantColums > Y. 
 
-vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1 + 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).
-vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1 - 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).
-vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1, Y2 is Y1 + 1, posicionValida(pos(X2,Y2),Tablero).
-vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- X2 is X1, Y2 is Y1 - 1, posicionValida(pos(X2,Y2),Tablero).
+vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- posicionValida(pos(X1,Y1),Tablero), X2 is X1 + 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).
+vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- posicionValida(pos(X1,Y1),Tablero), X2 is X1 - 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).
+vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- posicionValida(pos(X1,Y1),Tablero), X2 is X1, Y2 is Y1 + 1, posicionValida(pos(X2,Y2),Tablero).
+vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- posicionValida(pos(X1,Y1),Tablero), X2 is X1, Y2 is Y1 - 1, posicionValida(pos(X2,Y2),Tablero).
 
 %% Ejercicio 4
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
@@ -96,6 +96,13 @@ camino2(Inicio,Fin,Tablero,Camino) :- longitudCaminoMaximo(Inicio,Fin,Tablero,Ma
 
 %% 6.1. Analizar la reversibilidad de los parámetros Inicio y Camino justificando adecuadamente en
 %% cada caso por qué el predicado se comporta como lo hace.
+
+%% En el caso del parametro Fin. tomando con instanciados los parametros Inicio, Tablero y Camino el predicado Camino2 fallara.
+%% Dado que camino2 depende del predicao longitudCaminoMaximo el cual solicita que sus parametros de Inicio, Fin y Tablero, al no
+%% estar instanciado Fin, el predicado actura de forma extraña. Intanciando el Parametro de Longitud en un valor que nos pertmitira
+%% computar los valores de 
+
+%% 
 
 
 %% Ejercicio 7

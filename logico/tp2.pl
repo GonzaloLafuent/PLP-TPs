@@ -189,22 +189,32 @@ testCamino(4) :- tablero(tablero3x3,T), ocupar(pos(1,1),T),
 testCamino(5) :- tablero(tablero2x2,C).
 
 cantidadTestsCaminoOptimo(4).
+%% Test instancia un camino minimo correcto
 testCaminoOptimo(1) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), 
                        caminoOptimo(pos(0,0),pos(2,2),T,C1), C1 = [pos(0, 0), pos(1, 0), pos(2, 0), pos(2, 1), pos(2, 2)],
                        caminoOptimo(pos(0,0),pos(2,2),T,C2), C2 = [pos(0, 0), pos(0, 1), pos(0, 2), pos(1, 2), pos(2, 2)].
-testCaminoOptimo(2) :- tablero(tablero3x3,T),caminoOptimo(pos(0,0),pos(1,1),T,C), length(C,N), N is 3.
-testCaminoOptimo(3) :- tablero(tablero3x3,T),caminoOptimo(pos(0,0),pos(2,2),T,C), length(C,N), N is 5.
-testCaminoOptimo(4) :- tablero(tablero5x5,T), caminoOptimo(pos(2,3),pos(2,4),T,C), length(C,N), N is 2.
 
-cantidadTestsCaminoDual(2).
+%% Test el camino instanciado es el camino mas corto posible                       
+testCaminoOptimo(2) :- tablero(tablero3x3,T),caminoOptimo(pos(0,0),pos(1,1),T,C1), length(C1,N1), N1 is 3,
+                       not((camino(pos(0,0),pos(1,1),T,C2), length(C2,N2), N2 < N1)).
+testCaminoOptimo(3) :- tablero(tablero3x3,T),caminoOptimo(pos(0,0),pos(2,2),T,C1), length(C1,N1), N1 is 5,
+                       not((camino(pos(0,0),pos(2,2),T,C2), length(C2,N2), N2 < N1)).
+testCaminoOptimo(4) :- tablero(tablero5x5,T), caminoOptimo(pos(2,3),pos(2,4),T,C1), length(C1,N1), N1 is 2,
+                       not((camino(pos(2,3),pos(2,4),T,C2), length(C2,N2), N2 < N1)).
+
+cantidadTestsCaminoDual(3).
 %% Test No hay camino dual.
 testCaminoDual(1) :- not((tablero(tablero2x2,T1), tablero(tablero2x2,T2), ocupar(pos(1,0),T2), 
                      caminoDual(pos(0,0),pos(1,1),T1,T2,[pos(0,0),pos(1,0),pos(1,1)]))).
 %% Test camino Dual presente                     
 testCaminoDual(2) :- tablero(tablero2x2,T1), ocupar(pos(1,0),T1), tablero(tablero2x2,T2), ocupar(pos(1,0),T2),
-                      caminoDual(pos(0,0),pos(1,1),T1,T2,C), C = [pos(0,0),pos(0,1),pos(1,1)].
+                      caminoDual(pos(0,0),pos(1,1),T1,T2,C1), C1 = [pos(0,0),pos(0,1),pos(1,1)],
+                      not((caminoDual(pos(0,0),pos(1,1),T1,T2,C2),C2 \= C1)).
 
-                      
+testCaminoDual(3) :- tablero(tablero3x3,T1), ocupar(pos(0,1),T1), ocupar(pos(1,1),T1), tablero(tablero3x3,T2), 
+                    caminoDual(pos(0,0),pos(2,1),T1,T2,C1), C1 = [pos(0,0),pos(1,0),pos(2,0),pos(2,1)],
+                    not((caminoDual(pos(0,0),pos(2,1),T1,T2,C2),C2 \= C1)).
+                    
 
 tests(tablero) :- cantidadTestsTablero(M), forall(between(1,M,N), testTablero(N)).
 tests(vecino) :- cantidadTestsVecino(M), forall(between(1,M,N), testVecino(N)).

@@ -105,11 +105,7 @@ tamanioTablero([F|T],A) :- length(F,B), length([F|T],H), A is B*H.
 %% Ejercicio 7
 %% caminoOptimo(+Inicio, +Fin, +Tablero, -Camino) será verdadero cuando Camino sea un
 %% camino óptimo sobre Tablero entre Inicio y Fin. Notar que puede no ser único.
-%caminoOptimo(PI,PF,T,C) :- camino(PI,PF,T,C), length(C,L), not((camino(PI,PF,T,C2), length(C2,L2), L2<L)).
-caminoOptimo(PI,PF,T,C) :- caminoOptimoAux(PI,PF,T,C,1).
-
-caminoOptimoAux(PI,PF,T,C,L) :- camino(PI,PF,T,C), length(C,L),!.
-caminoOptimoAux(PI,PF,T,C,L) :- L2 is L+1, caminoOptimoAux(PI,PF,T,C,L2).
+caminoOptimo(PI,PF,T,C) :- camino(PI,PF,T,C), length(C,L), not((camino(PI,PF,T,C2), length(C2,L2), L2<L)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Tableros simultáneos

@@ -87,12 +87,12 @@ caminoYVisitados(PI,PF,T,[PI,P2|CAM],V) :- vecinoLibre(PI,T,P2), not(member(P2,V
 %% Ejercicio 6
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero que las soluciones
 %% se instancien en orden creciente de longitud.
-camino2(PI,PF,T,C) :- caminoDeLargoM(PI,PF,T,C,0).
+camino2(PI,PF,T,C) :- tamanioTablero(T,MAX), caminoDeLargoM(PI,PF,T,C,0,MAX).
 
-%% caminoDeLargoM(+Inicio, +Fin, +Tablero, -Camino, +LargoMinimo) será verdadero cuando encuentre un camino con un largo 
-%% de como minimo LargoMinimo
-caminoDeLargoM(PI,PF,T,C,L) :- camino(PI,PF,T,C), length(C,L).
-caminoDeLargoM(PI,PF,T,C,L) :- tamanioTablero(T,MAX), L<MAX, L2 is L+1, caminoDeLargoM(PI,PF,T,C,L2).
+%% caminoDeLargoM(+Inicio, +Fin, +Tablero, -Camino, +LargoMinimo, +LargoMaximo) será verdadero cuando encuentre un camino
+%% con un largo de como minimo LargoMinimo y como maximo LargoMaximo
+caminoDeLargoM(PI,PF,T,C,MIN,_) :- camino(PI,PF,T,C), length(C,MIN).
+caminoDeLargoM(PI,PF,T,C,MIN,MAX) :- MIN<MAX, MIN2 is MIN+1, caminoDeLargoM(PI,PF,T,C,MIN2,MAX).
 
 %% tamanioTablero(+Tablero, -Area) será verdadero cuando el area corresponda al area del tablero
 tamanioTablero([F|T],A) :- length(F,B), length([F|T],H), A is B*H.
@@ -131,13 +131,14 @@ testTablero(1) :- tablero(tablero0x0,[]).
 testTablero(2) :- tablero(tablero2x2,[[_,_],[_,_]]).
 testTablero(3) :- tablero(tablero3x3,[[_,_,_],[_,_,_],[_,_,_]]).
 testTablero(4) :- tablero(tablero5x5,[[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_]]).
-testTablero(5) :- ocupar(pos(0,0), T), T = [[ocupar|_]|_],!.
+testTablero(5) :- ocupar(pos(0,0), T), T = [[V]], nonvar(V).
 testTablero(6) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), ocupar(pos(0,0),T),
-                  T = [[ocupar,_,_],[_,ocupar,_],[_,_,_]].
+                  T = [[V1,_,_],[_,V2,_],[_,_,_]], nonvar(V1), nonvar(V2).
 testTablero(7) :- tablero(tablero2x2,T), ocupar(pos(0,0),T), ocupar(pos(1,0),T),
-                  T = [[ocupar,_],[ocupar,_]].
+                  T = [[V1,_],[V2,_]], nonvar(V1), nonvar(V2).
 testTablero(8) :- tablero(tablero5x5,T), ocupar(pos(4,1),T),ocupar(pos(2,2),T), ocupar(pos(2,1),T),
-                  T = [[_,_,_,_,_],[_,_,_,_,_],[_,ocupar,ocupar,_,_],[_,_,_,_,_],[_,ocupar,_,_,_]].
+                  T = [[_,_,_,_,_],[_,_,_,_,_],[_,V1,V2,_,_],[_,_,_,_,_],[_,V3,_,_,_]],
+                  nonvar(V1), nonvar(V2), nonvar(V3).
 
 cantidadTestsVecino(6). 
 testVecino(1) :- vecino(pos(0,0), [[_,_]], pos(0,1)).

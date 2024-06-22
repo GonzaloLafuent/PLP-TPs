@@ -131,13 +131,13 @@ testTablero(1) :- tablero(tablero0x0,[]).
 testTablero(2) :- tablero(tablero2x2,[[_,_],[_,_]]).
 testTablero(3) :- tablero(tablero3x3,[[_,_,_],[_,_,_],[_,_,_]]).
 testTablero(4) :- tablero(tablero5x5,[[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_],[_,_,_,_,_]]).
-testTablero(5) :- ocupar(pos(0,0), [[ocupada]]).
+testTablero(5) :- ocupar(pos(0,0), T), T = [[ocupar|_]|_],!.
 testTablero(6) :- tablero(tablero3x3,T), ocupar(pos(1,1),T), ocupar(pos(0,0),T),
-                  T = [[ocupada,_,_],[_,ocupada,_],[_,_,_]].
+                  T = [[ocupar,_,_],[_,ocupar,_],[_,_,_]].
 testTablero(7) :- tablero(tablero2x2,T), ocupar(pos(0,0),T), ocupar(pos(1,0),T),
-                  T = [[ocupada,_],[ocupada,_]].
+                  T = [[ocupar,_],[ocupar,_]].
 testTablero(8) :- tablero(tablero5x5,T), ocupar(pos(4,1),T),ocupar(pos(2,2),T), ocupar(pos(2,1),T),
-                  T = [[_,_,_,_,_],[_,_,_,_,_],[_,ocupada,ocupada,_,_],[_,_,_,_,_],[_,ocupada,_,_,_]].
+                  T = [[_,_,_,_,_],[_,_,_,_,_],[_,ocupar,ocupar,_,_],[_,_,_,_,_],[_,ocupar,_,_,_]].
 
 cantidadTestsVecino(6). 
 testVecino(1) :- vecino(pos(0,0), [[_,_]], pos(0,1)).

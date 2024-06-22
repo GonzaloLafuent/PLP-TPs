@@ -15,7 +15,7 @@ fila(CS,[_|FS]) :- CS > 0, CS2 is CS-1, fila(CS2,FS).
 
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
-ocupar(P,T) :- posTablero(P,T,E), var(E), E=ocupar.
+ocupar(P,T) :- posTablero(P,T,ocupada).
 
 %% posTablero(?Pos,?Tablero,?Elem)
 posTablero(pos(I,J),T,E) :- nth0(I,T,F), nth0(J,F,E), esTablero(T).

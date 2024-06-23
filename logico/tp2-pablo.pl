@@ -91,7 +91,7 @@ camino2(PI,PF,T,C) :- tamanioTablero(T,MAX), caminoDeLargoM(PI,PF,T,C,0,MAX).
 
 %% caminoDeLargoM(+Inicio, +Fin, +Tablero, -Camino, +LargoMinimo, +LargoMaximo) será verdadero cuando encuentre un camino
 %% con un largo de como minimo LargoMinimo y como maximo LargoMaximo
-caminoDeLargoM(PI,PF,T,C,MIN,_) :- camino(PI,PF,T,C), length(C,MIN).
+caminoDeLargoM(PI,PF,T,C,MIN,_) :- length(C,MIN), camino(PI,PF,T,C).
 caminoDeLargoM(PI,PF,T,C,MIN,MAX) :- MIN<MAX, MIN2 is MIN+1, caminoDeLargoM(PI,PF,T,C,MIN2,MAX).
 
 %% tamanioTablero(+Tablero, -Area) será verdadero cuando el area corresponda al area del tablero
@@ -105,7 +105,7 @@ tamanioTablero([F|T],A) :- length(F,B), length([F|T],H), A is B*H.
 %% Ejercicio 7
 %% caminoOptimo(+Inicio, +Fin, +Tablero, -Camino) será verdadero cuando Camino sea un
 %% camino óptimo sobre Tablero entre Inicio y Fin. Notar que puede no ser único.
-caminoOptimo(PI,PF,T,C) :- camino(PI,PF,T,C), length(C,L), not((camino(PI,PF,T,C2), length(C2,L2), L2<L)).
+caminoOptimo(PI,PF,T,C) :- camino2(PI,PF,T,C), length(C,L), not((camino(PI,PF,T,C2), length(C2,L2), L2<L)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Tableros simultáneos

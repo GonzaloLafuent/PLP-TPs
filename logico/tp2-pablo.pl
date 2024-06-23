@@ -107,6 +107,8 @@ tamanioTablero([F|T],A) :- length(F,B), length([F|T],H), A is B*H.
 %% camino óptimo sobre Tablero entre Inicio y Fin. Notar que puede no ser único.
 caminoOptimo(PI,PF,T,C) :- caminoOptimoAux(PI,PF,T,C,0).
 
+%% caminoOptimoAux(+Inicio, +Fin, +Tablero, -Camino, +MenorEsperado) será verdadero cuando encuentre un camino de largo
+%% MenorEsperado o de lo contrario si encuentra uno de largo mayor .
 caminoOptimoAux(PI,PF,T,C,L) :- (length(C2,L), camino(PI,PF,T,C2) ->    %% If (hay camino de largo L)
                                        %% then C debe ser de ese largo :
                                        (length(C,L), camino(PI,PF,T,C)) 

@@ -1,4 +1,4 @@
-Tenemos las siguiente funciones:
+Tenemos las siguientes funciones:
     -elem :: a -> [a] -> bool
     -elem a [] = false				
     -elem a x:xs = e == x || elem xs		
@@ -24,7 +24,7 @@ Tomamos P(u): ∀ o :: Objeto . elem o (objetos_en u) ⇒ elem (Right o) u
 CASO BASE:
 -Pruebo que vale P([]):
     -elem o (objetos_en []) = elem o (map objeto_de (filter es_un_objeto []))                               -Por def de objetos_en
-                            = elem o (map objetos_de [])                                                    -Por def de filter
+                            = elem o (map objeto_de [])                                                     -Por def de filter
                             = elem o []                                                                     -Por def de map
                             = False                                                                         -Por def de elem
 
@@ -41,13 +41,15 @@ PASO INDUCTIVO:
         elem o (objetos_en e:u) = elem o (map objeto_de (filter es_un_objeto e:u))                                                               -Por def de objetos_en 
                                 = elem o (map objeto_de (if es_un_objeto e then e:(filter es_un_objeto u) else filter es_un_objeto u))           -Por def de filter
 
-    -Por principio de extensionalidad sobre booleanos, probemos para dos casos. Cuando es_un_objeto e = true o cuando es_un_objeto e = false:
-        -Si (es_un_objeto e) = False, por la igualdad anterior, tenemos que:
+    -Como es_un_objeto e devuelve un resultado booleano, por principio de extensionalidad sobre booleanos, probemos para dos casos.
+     Cuando es_un_objeto e = true o cuando es_un_objeto e = false:
+        -Si (es_un_objeto e) = False, por la igualdad anterior y aplicando el principio de reemplazo tenemos que:
             -elem o (map objeto_de (if False then e:(filter es_un_objeto u) else filter es_un_objeto u)) = elem o (map objeto_de (filter es_un_objeto u))               -Por def de if            
                                                                                                          = elem o (objetos_en u)                                        -Por def de objetos_en
             -por lo tanto obtenemos que elem o (objetos_en e:u) = elem o (objetos_en u) para este caso.
 
-	        -Aplicando nuevamente principio de extensionalidad sobre booleanos tenemos dos casos para analizar la implicacion:	 
+	        -Como elem o (objetos_en u) tambien devuelve un resultado booleando, aplicando nuevamente principio de extensionalidad sobre booleanos 
+             tenemos dos casos para analizar la implicacion:	 
             	-Si elem o (objetos_en e:u) = elem o (objetos_en u) = False:
 			        -Sabemos que el segundo lado de la implicacion no importa, tal que siempre sera verdadera la implicacion. por lo tanto para este caso vale la implicacion
             	-Si elem o (objetos_en e:u) = elem o (objetos_en u) = True: 
@@ -59,15 +61,15 @@ PASO INDUCTIVO:
 				            elem (Right o) e:u = e == (Right o) || elem (Right o) u      -por def de elem
 
 		 	        -Como es un una disyuncion, para que sea True basta con que e == (Right o) = True o que elem (Right o) = True. 
-		 	        -Por HI sabemos que elem o (objetos_en u) ⇒ elem (Right o) u. Como estamos en el caso en el elem o (objetos_en u) = True para que 
+		 	        -Por HI sabemos que elem o (objetos_en u) ⇒ elem (Right o) u. Como estamos en el caso en el elem o (objetos_en u) = True, para que 
 		 	         valga la implicacion, y por lo tanto se cumpla HI, el segundo lado tambien debe ser verdadero, por lo tanto elem (Right o) u = True.
-			        -Como elem (Right o) u = True entonces elem (Right o) e:u = e == Right o || elem (Right o) u = True  
+			        -Como elem (Right o) u = True entonces elem (Right o) e:u = e == Right o || elem (Right o) u = True.  
 			        -Como estamos en el caso que elem o (objetos_en u) = True, entonces vale que elem o (objetos_en u) ⇒ elem (Right o) e:u, tal que
                      ambos lados de la implicacion son verdaderos.      	
 
             -Concluimos que vale elem o (objetos_en e:u) ⇒ elem (Right o) e:u para ambos casos.
 
-        -Si (es_un_objeto e) = True tenemos que:
+        -Si (es_un_objeto e) = True, por la igualdad obtenida con la descomposicion de filter y aplicando el principio de reemplazo tenemos que:
             -elem o (map objeto_de (if True then e:(filter (es_un_objeto) u) else filter (es_un_objeto) u)) = elem o (map objeto_de (e:filter (es_un_objeto) u))     -Por def de if
 
             -luego: 
@@ -76,9 +78,11 @@ PASO INDUCTIVO:
                                                                       	= o == (objeto_de e) || elem o (objetos_en u)                                        -Por def de elem
 
 	    -Por lo tanto en este caso elem o (objetos_en e:u) = o == objeto_de e || elem o (objetos_en u).
-            -Por principio de extensionalidad sobre booleanos debemos ver los casos cuando o == (objeto_de e) || elem o (objetos_en u) = False o cuando o == (objeto_de e) || elem o (objetos_en u) = True.
+            -Como esta expresion tambien sera un booleano, aplicando principio de extensionalidad sobre boolenos tenemos que ver los 
+             casos cuando o == (objeto_de e) || elem o (objetos_en u) = False o cuando o == (objeto_de e) || elem o (objetos_en u) = True.
             
-	        -Para o == (objeto_de e) || elem o (objetos_en u) = True tenemos los siguientes casos:
+	        -Para o == (objeto_de e) || elem o (objetos_en u) = True, como es una disyuncion, tenemos los siguientes casos para
+             que su resultado sea igual a True:   
                 -o == (objeto_de e) = True:
 		            -Queremos ver que elem o (objetos_en e:u) ⇒ elem (Right o) e:u. Como en este caso el primer lado de la implicacion es True, el segundo debe serlo 
 		             para que valga la implicacion.	
@@ -97,7 +101,7 @@ PASO INDUCTIVO:
 
 		            -Como la definicion nos da una disyuncion, con que un lado sea verdadero basta para dar True. Sabemos que e = (Right y), donde a su vez o == y.
 		             Luego Right y = Right o por lo tanto vale que e == (Right o). En consecuencia, elem (Right o) e:u = e == (Right o) || elem (Right o) u = True. 		
-                    -Como ambos lados de la implicacion dan True, concluimos que elem o (objetos_en e:u) ⇒ elem (Right o) e:u
+                    -Como ambos lados de la implicacion son verdaderos, concluimos que elem o (objetos_en e:u) ⇒ elem (Right o) e:u
 
                 -elem o (objetos_en u) = True:
                     -Queremos ver que elem o (objetos_en e:u) ⇒ elem (Right o) e:u. Como en este caso el primer lado de la implicacion es True, el segundo debe serlo 
@@ -119,7 +123,8 @@ PASO INDUCTIVO:
                 -Concluimos que para ambos casos vale la implicacion    
  
             -Para o == objeto_de e || elem o objeto_en u = False tenemos el siguiente caso:
-                -o == objeto_de e = False && elem o objeto_en u = False:
+                -o == objeto_de e = False && elem o objeto_en u = False, tal que para que la distyuncion sea False ambos lados de la misma
+                 no deben ser verdaderos:
                     -Luego tenemos que elem o (objetos_en e:u) = False, como la primer lado de la implicacion es siempre falsa luego 
                     -vale que elem o (objetos_en e:u) ⇒ elem (Right o) e:u
 

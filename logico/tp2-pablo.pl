@@ -87,15 +87,18 @@ caminoYVisitados(PI,PF,T,[PI,P2|CAM],V) :- vecinoLibre(PI,T,P2), not(member(P2,V
 %% Ejercicio 6
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero que las soluciones
 %% se instancien en orden creciente de longitud.
-camino2(PI,PF,T,C) :- tamanioTablero(T,MAX), caminoDeLargoM(PI,PF,T,C,0,MAX).
-
-%% caminoDeLargoM(+Inicio, +Fin, +Tablero, -Camino, +LargoMinimo, +LargoMaximo) será verdadero cuando encuentre un camino
-%% con un largo de como minimo LargoMinimo y como maximo LargoMaximo
-caminoDeLargoM(PI,PF,T,C,MIN,_) :- length(C,MIN), camino(PI,PF,T,C).
-caminoDeLargoM(PI,PF,T,C,MIN,MAX) :- MIN<MAX, MIN2 is MIN+1, caminoDeLargoM(PI,PF,T,C,MIN2,MAX).
+camino2(PI,PF,T,C) :- tamanioTablero(T,MAX), caminoDeLargoEntre(PI,PF,T,C,0,MAX).
 
 %% tamanioTablero(+Tablero, -Area) será verdadero cuando el area corresponda al area del tablero
 tamanioTablero([F|T],A) :- length(F,B), length([F|T],H), A is B*H.
+
+%% caminoDeLargoEntre(+Inicio, +Fin, +Tablero, -Camino, +LargoMinimo, +LargoMaximo) será verdadero cuando encuentre un camino
+%% con un largo de como minimo LargoMinimo y como maximo LargoMaximo
+caminoDeLargoEntre(PI,PF,T,C,MIN,_) :- caminoDeLargo(PI,PF,T,C,MIN).
+caminoDeLargoEntre(PI,PF,T,C,MIN,MAX) :- MIN<MAX, SIG is MIN+1, caminoDeLargoEntre(PI,PF,T,C,SIG,MAX).
+
+%% caminoDeLargo(+Inicio, +Fin, +Tablero, -Camino, +Largo) será verdadero cuando encuentre un camino con el Largo dado
+caminoDeLargo(PI,PF,T,C,L) :- length(C,MIN), camino(PI,PF,T,C).
 
 %% 6.1. Analizar la reversibilidad de los parámetros Inicio y Camino justificando adecuadamente en
 %% cada caso por qué el predicado se comporta como lo hace.
@@ -105,15 +108,9 @@ tamanioTablero([F|T],A) :- length(F,B), length([F|T],H), A is B*H.
 %% Ejercicio 7
 %% caminoOptimo(+Inicio, +Fin, +Tablero, -Camino) será verdadero cuando Camino sea un
 %% camino óptimo sobre Tablero entre Inicio y Fin. Notar que puede no ser único.
-caminoOptimo(PI,PF,T,C) :- caminoOptimoAux(PI,PF,T,C,0).
+caminoOptimo(PI,PF,T,C) :- camino2(PI,PF,T,C2), !, length(C2, L), caminoDeLargo(PI,PF,T,C,L).
 
-%% caminoOptimoAux(+Inicio, +Fin, +Tablero, -Camino, +MenorEsperado) será verdadero cuando encuentre un camino de largo
-%% MenorEsperado o de lo contrario si encuentra uno de largo mayor .
-caminoOptimoAux(PI,PF,T,C,L) :- (length(C2,L), camino(PI,PF,T,C2) ->    %% If (hay camino de largo L)
-                                       %% then C debe ser de ese largo :
-                                       (length(C,L), camino(PI,PF,T,C)) 
-                                       ;%% else proba con uno mas :
-                                       (L2 is L+1, caminoOptimoAux(PI,PF,T,C,L2))). 
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Tableros simultáneos

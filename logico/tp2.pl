@@ -5,50 +5,53 @@
 %% Ejercicio 1
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
-
-%% fila(+CantPosiciones,-Fila) instancia una estructura de una fila de tamaño CantPosiciones para la creacion de un tablero.
-fila(1,[_]).
-fila(CantPosiciones,[_|RestoFila]) :- CantPosiciones\=1, PosicionesPorAgregar is CantPosiciones-1, fila(PosicionesPorAgregar,RestoFila). 
-
 tablero(0,_,[]).
-tablero(CantFilas,CantColumns,[Fila|RestoTablero]) :- CantFilas\=0,fila(CantColumns,Fila), 
-                                                      FilasPorAgregar is CantFilas-1, tablero(FilasPorAgregar,CantColumns,RestoTablero).
+tablero(FS,CS,[F|T]) :- FS > 0, fila(CS,F), FS2 is FS-1, tablero(FS2,CS,T).
+
+%% fila(+Columnas,-Fila) instancia una estructura de fila de tamaño Columnas
+%% con todas las celdas en blanco
+fila(0,[]).
+fila(CS,[_|FS]) :- CS > 0, CS2 is CS-1, fila(CS2,FS).
 
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
- 
-esTablero([]).
-esTablero(TAB) :- mismoLargo(TAB,_).
+ocupar(P,T) :- posTablero(P,T,ocupada).
 
-%% mismoLargo(?TAB,?L) será verdadero cuando todas las filas tengan mismo largo.
+%% posTablero(?Pos,?Tablero,?Elem) sera verdadero si la Pos dentro del Tablero esta Elem
+posTablero(pos(I,J),T,E) :- nth0(I,T,F), nth0(J,F,E), esTablero(T).
+
+%% esTablero(?Tablero) será verdadero cuando el Tablero tenga filas de mismo largo.
+esTablero(T) :- mismoLargo(T,_).
+
+%% mismoLargo(?T,?L) será verdadero cuando todas las filas tengan mismo largo.
 mismoLargo([],_).
-mismoLargo([F|TAB],L) :- var(F), mismoLargo(TAB,L), length(F,L).
-mismoLargo([F|TAB],L) :- nonvar(F), length(F,L), mismoLargo(TAB,L).
-
-ocupar(pos(X,Y),Tablero) :- nth0(X,Tablero,FilaX,RestoTablero), nth0(Y,FilaX,E,RestoFila),
-                            nth0(Y,FilaNueva,ocupada,RestoFila), nth0(X,Tablero,FilaNueva,RestoTablero),
-                            esTablero(Tablero), length(Tablero,N), N > 1.
+mismoLargo([F|T],L) :- var(F), mismoLargo(T,L), length(F,L).
+mismoLargo([F|T],L) :- nonvar(F), length(F,L), mismoLargo(T,L).
 
 %% Ejercicio 3
 %% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
 %% un átomo de la forma pos(F', C') y pos(F',C') sea una celda contigua a
 %% pos(F,C), donde Pos=pos(F,C). Las celdas contiguas puede ser a lo sumo cuatro
 %% dado que el robot se moverá en forma ortogonal.
+vecino(PI,T,PV) :- posicionValida(PI,T), distDesde(PI,PV,1), posicionValida(PV,T).
 
-%% posicionValida(+Posicion,+Tablero) sera verdadero si la posicion dada esta dentro de los limites del tablero.
-posicionValida(pos(X,Y),[Fila|RestoTablero]) :- 0=<X, 0=<Y , length([Fila|RestoTablero],CantFilas), length(Fila,CantColums), CantFilas > X, CantColums > Y. 
+%% posicionValida(+pos(I,J),+Tablero) será verdadero cuando la posición este dentro del tablero
+posicionValida(P,T) :- posTablero(P,T,_).
 
-vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- posicionValida(pos(X1,Y1),Tablero), X2 is X1 + 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).
-vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- posicionValida(pos(X1,Y1),Tablero), X2 is X1 - 1, Y2 is Y1, posicionValida(pos(X2,Y2),Tablero).
-vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- posicionValida(pos(X1,Y1),Tablero), X2 is X1, Y2 is Y1 + 1, posicionValida(pos(X2,Y2),Tablero).
-vecino(pos(X1,Y1),Tablero,pos(X2,Y2)) :- posicionValida(pos(X1,Y1),Tablero), X2 is X1, Y2 is Y1 - 1, posicionValida(pos(X2,Y2),Tablero).
+%% distDesde(+posicioInicial, ?posicionFinal, ?dist) sera verdadero cuando la posicionFinal este en un eje
+%% a dist desde la otra
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II+D, JF is JI.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II-D, JF is JI.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II, JF is JI+D.
+distDesde(pos(II,JI),pos(IF,JF),D) :- IF is II, JF is JI-D.
 
 %% Ejercicio 4
 %% vecinoLibre(+Pos, +Tablero, -PosVecino) idem vecino/3 pero además PosVecino
 %% debe ser una celda transitable (no ocupada) en el Tablero
+vecinoLibre(PI,T,PV) :- posicionValida(PI,T), vecino(PI,T,PV), posicionLibre(PV,T).
 
-vecinoLibre(pos(X,Y),Tablero,pos(Xvecino,Yvecino)) :- vecino(pos(X,Y),Tablero,pos(Xvecino,Yvecino)), 
-                                                      nth0(Xvecino,Tablero,Fila,_), nth0(Yvecino,Fila,E,_), var(E).  
+%% posicionLibre(?posición,?Tablero) valido cuando la posición se encuentre en el tablero y es libre. 
+posicionLibre(P,T) :- posTablero(P,T,E), var(E).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Definicion de caminos
@@ -62,52 +65,56 @@ vecinoLibre(pos(X,Y),Tablero,pos(Xvecino,Yvecino)) :- vecino(pos(X,Y),Tablero,po
 %% Notar que la cantidad de caminos es finita y por ende se tiene que poder recorrer
 %% todas las alternativas eventualmente.
 %% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
+camino(PI,PF,T,CAM) :- caminoYVisitados(PI,PF,T,CAM,[PI]).
 
-%% generarCamino(+Inicio, +Fin, +Tablero, -Camino, +Visitados) permite generar un camino de inicio a fin manteniendo una lista de los nodos visitados en cada paso.
-%% XI = valor de X en la posicion inicial. YI = valor de Y en la posicion incial.
-%% XF = valor de X en la posicion final. YF = valor de Y en la posicion final.
-%% XA = valor de X en la posicion actual. YA = valor de Y en la posicion actual.
-generarCamino(pos(XF,YF),pos(XF,YF),_,[pos(XF,YF)],Visitados) :- not(member(pos(XF,YF),Visitados)).
-generarCamino(pos(XA,YA),pos(XF,YF),Tablero,[pos(XA,YA)|RestoCamino],Visitados) :- not(member(pos(XA,YA),Visitados)), vecinoLibre(pos(XA,YA),Tablero,ProxPosicion), 
-                                                                                   append(Visitados,[pos(XA,YA)],VisitadosNuevo),
-                                                                                   generarCamino(ProxPosicion,pos(XF,YF),Tablero,RestoCamino,VisitadosNuevo).
-
-camino(pos(XF,YF),pos(XF,YF),Tablero,[pos(XF,YF)]) :- length(Tablero,Longitud), Longitud =\= 0.
-camino(pos(XI,YI),pos(XF,YF),Tablero,[pos(XI,YI)|Camino]) :- vecinoLibre(pos(XI,YI),Tablero,ProxPosicion), 
-                                                             generarCamino(ProxPosicion,pos(XF,YF),Tablero,Camino,[pos(XI,YI)]).
+%% caminoYVisitados(+Inicio, +Fin, +Tablero, -Camino, +Visitadas) será verdadero en los mismos casos que camino
+%% pero registra las posiciones visitadas y no las pisa.
+caminoYVisitados(PF,PF,T,[PF],_) :- posicionValida(PF,T).
+caminoYVisitados(PI,PF,T,[PI,P2|CAM],V) :- vecinoLibre(PI,T,P2), not(member(P2,V)), 
+                                           caminoYVisitados(P2,PF,T,[P2|CAM],[P2|V]).
 
 %% 5.1. Analizar la reversibilidad de los parámetros Fin y Camino justificando adecuadamente en cada
 %% caso por qué el predicado se comporta como lo hace
+%% Los parametros fin y camino son reversibles tanto juntos como separados.
+%%   -Camino sin instanciar, va explorando vecinos de la ultima posicion valida visitada hasta encontrarse con la final
+%%   -Fin sin instanciar, ira asociando posiciones inicio al valor de la cabeza del camino hasta que llegue a la ultima 
+%%    y unifique cabeza con posicion final
+%%   -Ambos sin instanciar, empezando con el camino que es solo Inicio ira creando caminos explorando por vecinos validos 
+%%    y por cada exploracion lo dara como una salida valida con Fin como la ultima posicion visitada
 
 
 
 %% Ejercicio 6
 %% camino2(+Inicio, +Fin, +Tablero, -Camino) ídem camino/4 pero que las soluciones
 %% se instancien en orden creciente de longitud.
+camino2(PI,PF,T,C) :- tamanioTablero(T,MAX), caminoDeLargoEntre(PI,PF,T,C,0,MAX).
 
-%% longitudCaminoMaximo(+Inicio, +fin, +Tablero, -Longitud) instancia la longitud del camino maximo desde incio a fin dentro de un tablero. 
-longitudCaminoMaximo(Inicio,Fin,Tablero,MaxLongitud) :- camino(Inicio,Fin,Tablero,Camino), length(Camino,MaxLongitud), 
-                                                        not((camino(Inicio,Fin,Tablero,OtroCamino),length(OtroCamino,Longitud),MaxLongitud < Longitud)), !.
+%% tamanioTablero(+Tablero, -Area) será verdadero cuando el area corresponda al area del tablero
+tamanioTablero([F|T],A) :- length(F,B), length([F|T],H), A is B*H.
 
-%% Utilizo Generate and Test. Para crear los caminos de forma creciente, voy generando las posibles longitudes de caminos para esa posicion de inicio y fin,
-%% luego por cada longitud que genero me fijo si hay un camino valido con esa longitud.
-camino2(Inicio,Fin,Tablero,Camino) :- longitudCaminoMaximo(Inicio,Fin,Tablero,MaxLongitud), between(1,MaxLongitud,Longitud), 
-                                      camino(Inicio,Fin,Tablero,Camino), length(Camino,Longitud). 
+%% caminoDeLargoEntre(+Inicio, +Fin, +Tablero, -Camino, +LargoMinimo, +LargoMaximo) será verdadero cuando encuentre un camino
+%% con un largo de como minimo LargoMinimo y como maximo LargoMaximo
+caminoDeLargoEntre(PI,PF,T,C,MIN,_) :- caminoDeLargo(PI,PF,T,C,MIN).
+caminoDeLargoEntre(PI,PF,T,C,MIN,MAX) :- MIN<MAX, SIG is MIN+1, caminoDeLargoEntre(PI,PF,T,C,SIG,MAX).
+
+%% caminoDeLargo(+Inicio, +Fin, +Tablero, -Camino, +Largo) será verdadero cuando encuentre un camino con el Largo dado
+caminoDeLargo(PI,PF,T,C,L) :- length(C,L), camino(PI,PF,T,C).
 
 %% 6.1. Analizar la reversibilidad de los parámetros Inicio y Camino justificando adecuadamente en
 %% cada caso por qué el predicado se comporta como lo hace.
-
-%% En el caso del parametro Fin. tomando con instanciados los parametros Inicio, Tablero y Camino el predicado Camino2 fallara.
-%% Dado que camino2 depende del predicao longitudCaminoMaximo el cual solicita que sus parametros de Inicio, Fin y Tablero, al no
-%% estar instanciado Fin, el predicado actura de forma extraña. Intanciando el Parametro de Longitud en un valor que nos pertmitira
-%% computar los valores de 
+%% Los parametros son reversibles juntos o separados
+%%    -Inicio sin instanciar, ira instanciando pociciones validas que puede tomar hasta llegar al final del camino instanciado
+%%     y unificar el primer elemento de ese camino con el inicio, esto si Final unifica con el ultimo elemento de camino.
+%%    -Camino sin instanciar, va explorando posiciones validas desde Inicio que puedan formar parte del camino hasta llegar 
+%%     A la posicion Final, de llegar instanciara un camino valido.
+%%    -En el caso de no estar ninguno instanciado, Ira instanciando distintas posiciones de inicio y distintos Caminos, tal que 
+%%     todos terminen en la posicion Final. De encontralo, instanciara Inicio con el primer Elemento del Camino Generado hasta la posicion final
+%%    -Para todos estos casos, cuando vaya construyendo caminos, los ira instanciando de menor a mayor en base a sus logitudes.
 
 %% Ejercicio 7
 %% caminoOptimo(+Inicio, +Fin, +Tablero, -Camino) será verdadero cuando Camino sea un
 %% camino óptimo sobre Tablero entre Inicio y Fin. Notar que puede no ser único.
-%% PI = Posicion incicial, PF = Posicion Final, T = Tablero 
-%% CI = Camino I, LI = Longitud del camino I 
-caminoOptimo(PI,PF,T,C1) :- camino(PI,PF,T,C1), length(C1,L1), not((camino(PI,PF,T,C2), length(C2,L2), L2<L1)).
+caminoOptimo(PI,PF,T,C) :- camino2(PI,PF,T,C2), !, length(C2, L), caminoDeLargo(PI,PF,T,C,L).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %% Tableros simultáneos
@@ -117,8 +124,6 @@ caminoOptimo(PI,PF,T,C1) :- camino(PI,PF,T,C1), length(C1,L1), not((camino(PI,PF
 %% caminoDual(+Inicio, +Fin, +Tablero1, +Tablero2, -Camino) será verdadero
 %% cuando Camino sea un camino desde Inicio hasta Fin pasando al mismo tiempo
 %% sólo por celdas transitables de ambos tableros.
-%% PI = Posicion incicial, PF = Posicion Final, TI = tablero I
-%% C = Camino
 caminoDual(PI,PF,T1,T2,C) :- camino(PI,PF,T1,C), camino(PI,PF,T2,C).
 
 %%%%%%%%

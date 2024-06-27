@@ -229,17 +229,3 @@ tests(todos) :-
   tests(caminoDual).
 
 tests :- tests(todos).
-
-/* CODIGO REFACTORIZADO DEL EJERCICIO 1
-
-%% Ejercicio 1
-%% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
-%% de Filas x Columnas, con todas las celdas libres.
-tablero(0,_,[]).
-tablero(FS,CS,[F|T]) :- FS > 0, fila(CS,F), FS2 is FS-1, tablero(FS2,CS,T).
-
-%% fila(+Columnas,-Fila) instancia una estructura de fila de tamaño Columnas
-%% con todas las celdas en blanco
-fila(0,[]).
-fila(CS,[_|FS]) :- CS > 0, CS2 is CS-1, fila(CS2,FS).
-*/

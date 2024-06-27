@@ -5,6 +5,7 @@
 %% Ejercicio 1
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
+
 tablero(0,_,[]).
 tablero(FS,CS,[F|T]) :- FS > 0, fila(CS,F), FS2 is FS-1, tablero(FS2,CS,T).
 
@@ -98,7 +99,7 @@ caminoDeLargoEntre(PI,PF,T,C,MIN,_) :- caminoDeLargo(PI,PF,T,C,MIN).
 caminoDeLargoEntre(PI,PF,T,C,MIN,MAX) :- MIN<MAX, SIG is MIN+1, caminoDeLargoEntre(PI,PF,T,C,SIG,MAX).
 
 %% caminoDeLargo(+Inicio, +Fin, +Tablero, -Camino, +Largo) será verdadero cuando encuentre un camino con el Largo dado
-caminoDeLargo(PI,PF,T,C,L) :- length(C,MIN), camino(PI,PF,T,C).
+caminoDeLargo(PI,PF,T,C,L) :- length(C,L), camino(PI,PF,T,C).
 
 %% 6.1. Analizar la reversibilidad de los parámetros Inicio y Camino justificando adecuadamente en
 %% cada caso por qué el predicado se comporta como lo hace.

@@ -5,13 +5,12 @@
 %% Ejercicio 1
 %% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
 %% de Filas x Columnas, con todas las celdas libres.
-tablero(0,_,[]).
-tablero(FS,CS,[F|T]) :- FS > 0, fila(CS,F), FS2 is FS-1, tablero(FS2,CS,T).
+tablero(FS,CS,T) :- length(T,FS), mismoLargo(T,CS).
 
-%% fila(+Columnas,-Fila) instancia una estructura de fila de tamaño Columnas
-%% con todas las celdas en blanco
-fila(0,[]).
-fila(CS,[_|FS]) :- CS > 0, CS2 is CS-1, fila(CS2,FS).
+%% mismoLargo(?T,?L) será verdadero cuando todas las filas tengan mismo largo.
+mismoLargo([],_).
+mismoLargo([F|T],L) :- var(F), mismoLargo(T,L), length(F,L).
+mismoLargo([F|T],L) :- nonvar(F), length(F,L), mismoLargo(T,L).
 
 %% Ejercicio 2
 %% ocupar(+Pos,?Tablero) será verdadero cuando la posición indicada esté ocupada.
@@ -22,11 +21,6 @@ posTablero(pos(I,J),T,E) :- nth0(I,T,F), nth0(J,F,E), esTablero(T).
 
 %% esTablero(?Tablero) será verdadero cuando el Tablero tenga filas de mismo largo.
 esTablero(T) :- mismoLargo(T,_).
-
-%% mismoLargo(?T,?L) será verdadero cuando todas las filas tengan mismo largo.
-mismoLargo([],_).
-mismoLargo([F|T],L) :- var(F), mismoLargo(T,L), length(F,L).
-mismoLargo([F|T],L) :- nonvar(F), length(F,L), mismoLargo(T,L).
 
 %% Ejercicio 3
 %% vecino(+Pos, +Tablero, -PosVecino) será verdadero cuando PosVecino sea
@@ -235,3 +229,17 @@ tests(todos) :-
   tests(caminoDual).
 
 tests :- tests(todos).
+
+/* CODIGO REFACTORIZADO DEL EJERCICIO 1
+
+%% Ejercicio 1
+%% tablero(+Filas,+Columnas,-Tablero) instancia una estructura de tablero en blanco
+%% de Filas x Columnas, con todas las celdas libres.
+tablero(0,_,[]).
+tablero(FS,CS,[F|T]) :- FS > 0, fila(CS,F), FS2 is FS-1, tablero(FS2,CS,T).
+
+%% fila(+Columnas,-Fila) instancia una estructura de fila de tamaño Columnas
+%% con todas las celdas en blanco
+fila(0,[]).
+fila(CS,[_|FS]) :- CS > 0, CS2 is CS-1, fila(CS2,FS).
+*/

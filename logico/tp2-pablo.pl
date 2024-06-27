@@ -66,7 +66,7 @@ posicionLibre(P,T) :- posTablero(P,T,E), var(E).
 %% Notar que la cantidad de caminos es finita y por ende se tiene que poder recorrer
 %% todas las alternativas eventualmente.
 %% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
-camino(PI,PF,T,CAM) :- caminoYVisitados(PI,PF,T,CAM,[PI]).
+camino(PI,PF,T,CAM) :- posicionValida(PI,T), posicionValida(PF,T) , caminoYVisitados(PI,PF,T,CAM,[PI]).
 
 %% caminoYVisitados(+Inicio, +Fin, +Tablero, -Camino, +Visitadas) será verdadero en los mismos casos que camino
 %% pero registra las posiciones visitadas y no las pisa.

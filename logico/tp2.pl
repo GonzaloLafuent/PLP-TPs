@@ -88,6 +88,8 @@ tamanioTablero([F|T],A) :- length(F,B), length([F|T],H), A is B*H.
 
 %% caminoDeLargoEntre(+Inicio, +Fin, +Tablero, -Camino, +LargoMinimo, +LargoMaximo) será verdadero cuando encuentre un camino
 %% con un largo de como minimo LargoMinimo y como maximo LargoMaximo
+%% Utilizamos generate and test. generamos todas las longitudes en el intervalo de LargoMinimo a LargoMaximo y vemos cuales
+%% instancian un camino de esa longitud
 caminoDeLargoEntre(PI,PF,T,C,MIN,_) :- caminoDeLargo(PI,PF,T,C,MIN).
 caminoDeLargoEntre(PI,PF,T,C,MIN,MAX) :- MIN<MAX, SIG is MIN+1, caminoDeLargoEntre(PI,PF,T,C,SIG,MAX).
 

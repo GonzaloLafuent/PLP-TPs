@@ -61,7 +61,7 @@ posicionLibre(P,T) :- posTablero(P,T,E), var(E).
 %% Consejo: Utilizar una lista auxiliar con las posiciones visitadas
 camino(PI,PF,T,CAM) :- posicionLibre(PI,T), posicionLibre(PF,T), caminoYVisitados(PI,PF,T,CAM,[PI]).
 
-%% caminoYVisitados(+Inicio, +Fin, +Tablero, -Camino, +Visitadas) será verdadero en los mismos casos que camino,
+%% caminoYVisitados(+Inicio, +Fin, +Tablero, ?Camino, +Visitadas) será verdadero en los mismos casos que camino,
 %% pero asumiendo Incio y Fin validos, y registra las posiciones visitadas y no las pisa.
 caminoYVisitados(PF,PF,_,[PF],_).
 caminoYVisitados(PI,PF,T,[PI,P2|CAM],V) :- vecinoLibre(PI,T,P2), not(member(P2,V)), 

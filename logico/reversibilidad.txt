@@ -1,13 +1,13 @@
 5.1)
 Camino Instanciado:
  - Camino podra ser reversible. Si miramos la implementacion del predicado camino, recien interactuamos
-   con el parametro Camino al llamar a caminoYVisitados. Luego como caminoYvisitadpo es reversible por
+   con el parametro Camino al llamar a caminoYVisitados. Luego como caminoYvisitadpo es reversible
    para Camino, podemos decir que Camino tambien era reversible para camino. En este caso no instanciara
-   un camino, sino que deolver True si ese Camino instcniado es valido para esse parametro de Inicio y Fin. 
+   un camino, sino que devolvera True si ese Camino instanciado es valido para ese parametro de Inicio y Fin. 
 
 Fin Sin Instanciar:
  - Fin sera reversible. De no estar instanciado, notar que en nuestra implementacion, la unica vez 
-   que intervendra este parametro sera si unifica con la primer enuncacion de caminoYvisitados, pero
+   que intervendra este parametro sera si unifica con la primer enunciacion de caminoYvisitados, pero
    al unficar con este predicado la no instanciacion de Fin no genera inconvenientes, solo unficara 
    Fin con el ultimo elemento de algun Camino posible desde el Inicio Instanciado. 
 
@@ -21,23 +21,22 @@ Camino Instanciado:
    Por lo tanto podemos decir que sera reversible.
 
 Inicio sin Instanciar:
- - Inicion podra ser reversible. Si miramos la implemtacion de camino2, en el unico momento en el que se
-   podira comprometer el predicado si no esta instcnaido Inicio es cuando se llama a camino, esto ocurre
-   cuando se llama a caminoDeLargoEntre y dentro se hace alusiona caminoDeLargo.
-   De esta forma deberiamos ver si es reversible Inicio en camino, para ver si es posible de ser reversible
-   en camino2.
+ - Inicio podra ser reversible. Si miramos la implementacion de camino2, en el unico momento en el que se
+   comprometera el predicado si no esta instanciado Inicio es cuando se llama a camino, esto ocurre
+   cuando se llama a caminoDeLargoEntre y dentro se hace alusion a caminoDeLargo.
+   De esta forma deberiamos ver si es reversible Inicio en camino, para ver es reversible en camino2.
    Si Analizamos camino, pirmero llama a posicionLibre con el Inicio. como posicionLibre es reversible no me
-   genera inconventintes no tener instacniado a inicio.
-   luego tenemos que Inicio intectua nuevamnte con CaminoYVisitados. En este predicado inicio interactua con 
+   genera inconventintes no tener instanciado a inicio.
+   luego tenemos que Inicio interactua nuevamente con CaminoYVisitados. En este predicado inicio se comunica con 
    vecinoLibre. Si miramos la implementacion VecinoLibre, este depende de:
-        -PosicionLibre, si miramos su implementacion es reversible con respecto a Inicio
+        -posicionLibre, si miramos su implementacion es reversible con respecto a Inicio
          por lo tanto no afectara que Inicio no esta implementado.
-        -PosicionValida, este depende de posTbalero, si miramos posTablero tabien era reversible
-         con rspecto a Inicio, por lo tanto tampoc afecta que incio no esta instnciado.
-        -Vecino,  simiramos como esta implemtando, este no podra ser reversible para Inicio,
-         tal que disDesde requiere que Inicio este instacnido para hacer la posicion artimetica, pero
-         al llegar a la unifacion con este predicado, Inicio ya estara instcniaod, tal que haber llamado
-         PosicionLibre antes de CaminoYVisitados, Iniioc ya quedo instnciado con un valor. 
-         Por lo tanto llegara a Vecino con Inicio instanciado
-   Por lo tanto como ningun prediado del que depnde camino2 se ve afectado por la no intacion de Iniioc,
+        -posicionValida, este depende de posTablero, si miramos posTablero tabien era reversible
+         con respecto a Inicio, por lo tanto tampoco afecta que inicio no esta instanciado.
+        -vecino, si miramos como esta implemetando, este no podra ser reversible para Inicio,
+         tal que disDesde requiere que Inicio este instanciado para hacer la operacion artimetica, pero
+         al llegar a la unifacion con este predicado, Inicio ya estara instanciado, tal que al haber llamado
+         PosicionLibre antes de CaminoYVisitados, Inicio ya quedo instanciado con un valor. 
+         Por lo tanto llegara a Vecino con Inicio instanciado.
+   Por lo tanto como ningun predicado del que depende camino2 se ve afectado por no estar instanciado Inicio,
    podemos decir que es reversible Inicio.

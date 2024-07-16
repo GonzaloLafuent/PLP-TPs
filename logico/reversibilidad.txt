@@ -1,42 +1,53 @@
 5.1)
 Camino Instanciado:
- - Camino podra ser reversible. Si miramos la implementacion del predicado camino, recien interactuamos
+ - (Para favorecer a la legibilidad tomo C para referenciar al parametro Camino)
+ - C podra ser reversible. Si miramos la implementacion del predicado camino, recien interactuamos
    con el parametro Camino al llamar a caminoYVisitados. Luego como caminoYvisitadpo es reversible
-   para Camino, podemos decir que Camino tambien era reversible para camino. En este caso no instanciara
-   un camino, sino que devolvera True si ese Camino instanciado es valido para ese parametro de Inicio y Fin. 
+   para el parametro C, podemos decir que C tambien sera reversible para camino. Al estar instanciado
+   C, no generar una nueva instanciacion, sino que devolvera True si esa instancaicon de C corresponde a un
+   camino valido para esos valor de Inicio y Fin. 
 
 Fin Sin Instanciar:
- - Fin sera reversible. De no estar instanciado, notar que en nuestra implementacion, la unica vez 
-   que intervendra este parametro sera si unifica con la primer enunciacion de caminoYvisitados, pero
-   al unficar con este predicado la no instanciacion de Fin no genera inconvenientes, solo unficara 
-   Fin con el ultimo elemento de algun Camino posible desde el Inicio Instanciado. 
+ - Fin sera reversible. Notar que en nuestra implementacion interactua de forma directa con dicho parametro
+   en dos ocaciones:
+    -En PosicionLibre. En este caso PosicionLibre en su implementacion depende de PosTablero, el cual es un predicado
+     que es reversible para todo parametro que recibe. por lo tanto Sera reversible para Fin. Podemos concluir que,
+     como posTablero es revesible para Fin y posicionLibre solo depende de posTablero, luego Fin es reversible para
+     PosicionLibre.
+    -En CaminoYVisitados. Intervendra con este parametro solo si unifica con la primer enunciacion de caminoYvisitados, pero
+     al unificar con este predicado la no instanciacion de Fin no genera inconvenientes, solo unficara 
+     Fin con el ultimo elemento de algun Camino posible desde el Inicio Instanciado. Por lo tanto tambien
+     sera reversible.
+  - Por lo tanto, como todos los predicados de los que depende camino e interactuan con Fin, sin reversibles para este parametro
+    podemos decir que el predicado camino sera reversible para Fin. 
 
 6.1)
 Camino Instanciado:
- - Sera reversible. al llamar a camino2 con camino instanciado dependera del predicado caminoDeLargoEntre.
-   Si vemos la implementacion de caminoLargoEntre, para ambas construcciones del predicado dependera de 
-   caminoDeLargo. Al analizar CaminoDeLargo. vemos que depende de Length y y de camino.
-   Luego aca es donde podra afectar la instanciacion de parametro. Pero como Length es reversible para ambos
-   parametros, y camino es reversible para el parametro camino por lo que dijimos antes, no se vera afectado.
-   Por lo tanto podemos decir que sera reversible.
+ - (Para favorecer a la legibilidad tomo C para referenciar al parametro Camino)
+ - Sera reversible. al llamar a camino2 con C instanciado dependera del predicado caminoDeLargoEntre.
+   Si vemos la implementacion de caminoLargoEntre, tenemos dos enunciaciones del predicado que dependen de 
+   caminoDeLargo. Si observamos CaminoDeLargo, sera recien aca donde interactua con el predicado C. 
+   CaminoDeLargo dependera Length y Camino, los cuales ambos haran uso de C.
+   Pero como Length es reversible para ambos parametros, y camino es reversible para el parametro C por lo que definimos en el analisis 
+   de arriba, podemos decir que C sera reversible para camino2.
 
 Inicio sin Instanciar:
  - Inicio podra ser reversible. Si miramos la implementacion de camino2, en el unico momento en el que se
    comprometera el predicado si no esta instanciado Inicio es cuando se llama a camino, esto ocurre
    cuando se llama a caminoDeLargoEntre y dentro se hace alusion a caminoDeLargo.
-   De esta forma deberiamos ver si es reversible Inicio en camino, para ver es reversible en camino2.
-   Si Analizamos camino, pirmero llama a posicionLibre con el Inicio. como posicionLibre es reversible no me
+   De esta forma deberiamos ver si es reversible Inicio en camino, para ver si es reversible en camino2.
+   Si Analizamos camino, primero llama a posicionLibre con el Inicio. como posicionLibre es reversible no me
    genera inconventintes no tener instanciado a inicio.
    luego tenemos que Inicio interactua nuevamente con CaminoYVisitados. En este predicado inicio se comunica con 
    vecinoLibre. Si miramos la implementacion VecinoLibre, este depende de:
         -posicionLibre, si miramos su implementacion es reversible con respecto a Inicio
-         por lo tanto no afectara que Inicio no esta implementado.
-        -posicionValida, este depende de posTablero, si miramos posTablero tabien era reversible
+         por lo tanto no afectara que Inicio no esta instanciado.
+        -posicionValida, este depende de posTablero, si miramos posTablero tambien era reversible
          con respecto a Inicio, por lo tanto tampoco afecta que inicio no esta instanciado.
-        -vecino, si miramos como esta implemetando, este no podra ser reversible para Inicio,
-         tal que disDesde requiere que Inicio este instanciado para hacer la operacion artimetica, pero
+        -vecino, si miramos como esta implementando, este no podra ser reversible para Inicio,
+         tal que distDesde requiere que Inicio este instanciado para hacer la operacion artimetica, pero
          al llegar a la unifacion con este predicado, Inicio ya estara instanciado, tal que al haber llamado
-         PosicionLibre antes de CaminoYVisitados, Inicio ya quedo instanciado con un valor. 
+         PosicionLibre antes de CaminoYVisitados, Inicio ya quedo instanciado con un valor correspondiente a una posicion libre. 
          Por lo tanto llegara a Vecino con Inicio instanciado.
    Por lo tanto como ningun predicado del que depende camino2 se ve afectado por no estar instanciado Inicio,
    podemos decir que es reversible Inicio.
